@@ -1,0 +1,34 @@
+QWidget#ConnectQualityWidget{
+    image:url(":/IMAGE/EEG.png");
+}
+
+QLabel#Fp1label,
+QLabel#Fp2label,
+QLabel#F7label,
+QLabel#F3label,
+QLabel#Fzlabel,
+QLabel#F4label,
+QLabel#F8label,
+QLabel#A1label,
+QLabel#T3label,
+QLabel#C3label,
+QLabel#Czlabel,
+QLabel#C4label,
+QLabel#T4label,
+QLabel#A2label,
+QLabel#T5label,
+QLabel#P3label,
+QLabel#Pzlabel,
+QLabel#P4label,
+QLabel#T6label,
+QLabel#O1label,
+QLabel#O2label,
+QLabel#X1label,
+QLabel#X2label,
+QLabel#X3label{
+    border-radius:17px;
+    color:white;
+    background-color:black;
+    font-weight:bold;
+}
+
