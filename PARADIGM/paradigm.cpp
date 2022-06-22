@@ -17,14 +17,14 @@ Paradigm::~Paradigm()
     {
         process1->close();
         delete process1;
-        process1 == nullptr;
+//        process1 == nullptr;
     }
 
     if(process2 != nullptr)
     {
         process2->close();
         delete process2;
-        process2 == nullptr;
+//        process2 == nullptr;
     }
     delete ui;
 }

@@ -10,19 +10,16 @@
 #include <QVector>
 #include <QVideoWidget>
 #include <QtConcurrent/QtConcurrent>
+#include "deprecated/qmediaplaylist.h"
+#include "deprecated/playercontrols.h"
 
-#include <CCA/me_CCA.h>
-#include <CHART/signalchart.h>
-#include <CHART/impedancechart.h>
-#include <DSIAPI/alorithmswitch.h>
-#include <DSIAPI/csp_train.h>
-#include <DSIAPI/dsi_main.h>
-#include <DSIAPI/state_command.h>
-#include <OFFLINE/saveeeg.h>
-#include <PARADIGM/paradigm.h>
-#include <USART/rehabilitativeusart.h>
-#include <deprecated/qmediaplaylist.h>
-#include <deprecated/playercontrols.h>
+#include "CCA/me_CCA.h"
+#include "CHART/signalchart.h"
+#include "CHART/impedancechart.h"
+#include "OFFLINE/saveeeg.h"
+#include "OpenBCI/Cyton.h"
+#include "PARADIGM/paradigm.h"
+#include "USART/rehabilitativeusart.h"
 
 namespace Ui {
 class Dialog;
@@ -38,9 +35,9 @@ public:
 
 private:
     Ui::Dialog *ui;//ui
-    signalChart *chartWidght;//chart
+    SignalChart *chartWidght;//chart
     impedancechart *impedanceWidght;//imp
-    DSI_Main *dsiDataRec;//DSI
+    ehdu::Cyton *dataRec;//DSI
     DSI_FFTW *dsiFFtWDataHandle;//fftw
     saveEEG *recordWidght;//record
     rehabilitativeUsart *sendPort;//usart
@@ -80,8 +77,8 @@ private:
     void loadQssSlot(QString name);//读取QSS
 
 public slots:
-    void dsiStop();//关闭DSI
-    void dsiStart();//打开DSI
+    void cytonStop();//关闭DSI
+    void cytonStart();//打开DSI
     void fftwStop();//关闭FFTW
     void fftwStart();//打开FFTW
     void startVideoLeft();

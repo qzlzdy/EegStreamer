@@ -2,61 +2,40 @@
 #define SIGNALCHART_H
 
 #include <QWidget>
+
+#include <mutex>
+
 #include "CHART/qcustomplot.h"
-#include "DSIAPI/dataform.h"
-#include "mutex"
+#include "OpenBCI/Dataform.h"
 
-namespace Ui {
-class signalChart;
-}
+QT_BEGIN_NAMESPACE
+namespace Ui { class signalChart; }
+QT_END_NAMESPACE
 
-class signalChart : public QWidget
-{
+class SignalChart: public QWidget{
     Q_OBJECT
-
 public:
-    explicit signalChart(QWidget *parent,QList<QString> paintSignal);
-    ~signalChart();
+    explicit SignalChart(QWidget *parent, QList<QString> paintSignal);
+    ~SignalChart();
     void chartInit();
-
-    QList<QString> paintSignals;
-
 public slots:
-    void chartAddData(channelSignal data);
-
+    void chartAddData(ehdu::ChannelSignal data);
 private slots:
-        void mousePress();
-        void mouseWheel();
-        void selectionChanged();
-
+    void mousePress();
+    void mouseWheel();
+    void selectionChanged();
 private:
+    QList<QString> paintSignals;
     Ui::signalChart *ui;
-    QCPGraph *graph_Fp1;
-    QCPGraph *graph_Fp2;
-    QCPGraph *graph_F7;
-    QCPGraph *graph_F3;
-    QCPGraph *graph_Fz;
-    QCPGraph *graph_F4;
-    QCPGraph *graph_F8;
-    QCPGraph *graph_A1;
-    QCPGraph *graph_T3;
-    QCPGraph *graph_C3;
-    QCPGraph *graph_Cz;
-    QCPGraph *graph_C4;
-    QCPGraph *graph_T4;
-    QCPGraph *graph_A2;
-    QCPGraph *graph_T5;
-    QCPGraph *graph_P3;
-    QCPGraph *graph_Pz;
-    QCPGraph *graph_P4;
-    QCPGraph *graph_T6;
-    QCPGraph *graph_O1;
-    QCPGraph *graph_O2;
-    QCPGraph *graph_X1;
-    QCPGraph *graph_X2;
-    QCPGraph *graph_X3;
-
-    double xAxis_num;
+    QCPGraph *F3;
+    QCPGraph *F4;
+    QCPGraph *C3;
+    QCPGraph *Cz;
+    QCPGraph *C4;
+    QCPGraph *P3;
+    QCPGraph *Pz;
+    QCPGraph *P4;
+    double xAxisNum;
 };
 
 #endif // SIGNALCHART_H

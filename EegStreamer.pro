@@ -8,7 +8,7 @@ QT       += core gui serialport multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
-TARGET = DSI_CSP_CCA
+TARGET = EegStreamer
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -28,32 +28,25 @@ HEADERS += \
     deprecated/qmediaplaylist_p.h \
     deprecated/qplaylistfileparser_p.h \
     deprecated/playercontrols.h \
-    DSIAPI/DSI.h \
-    DSIAPI/dsi_main.h \
-    DSIAPI/dsi_debug.h \
-    CHART/qcustomplot.h \
-    CHART/signalchart.h \
-    DSIAPI/dataform.h \
-    CHART/impedancechart.h \
-    FFTW/fftw3.h \
-    FFTW/motorimagery.h \
-    OFFLINE/saveeeg.h \
-    USART/rehabilitativeusart.h \
-    PARADIGM/paradigm.h \
-    DSIAPI/state_command.h \
     CCA/me_CCA.h \
     CCA/me_CCA_types.h \
     CCA/rt_nonfinite.h \
     CCA/rtGetInf.h \
     CCA/rtGetNaN.h \
     CCA/rtwtypes.h \
-    KCCA/kcca.h \
-    FFTW/fftw3.h \
-    FFTW/motorimagery.h \
     CSP/csp_rec_ovo.h \
     CSP/csp_train_ovo.h \
-    DSIAPI/alorithmswitch.h \
-    DSIAPI/csp_train.h
+    CHART/impedancechart.h \
+    CHART/qcustomplot.h \
+    CHART/signalchart.h \
+    FFTW/fftw3.h \
+    FFTW/motorimagery.h \
+    KCCA/kcca.h \
+    OFFLINE/saveeeg.h \
+    OpenBCI/Cyton.h \
+    OpenBCI/Dataform.h \
+    PARADIGM/paradigm.h \
+    USART/rehabilitativeusart.h
 
 SOURCES += \
     main.cpp \
@@ -61,28 +54,24 @@ SOURCES += \
     deprecated/qmediaplaylist.cpp \
     deprecated/qplaylistfileparser.cpp \
     deprecated/playercontrols.cpp \
-    DSIAPI/DSI_API_Loader.c \
-    DSIAPI/dsi_main.cpp \
-    CHART/qcustomplot.cpp \
-    CHART/signalchart.cpp \
-    CHART/impedancechart.cpp \
-    FFTW/motorimagery.cpp \
-    OFFLINE/saveeeg.cpp \
-    USART/rehabilitativeusart.cpp \
-    PARADIGM/paradigm.cpp \
-    DSIAPI/state_command.cpp \
     CCA/me_CCA.cpp \
     CCA/rt_nonfinite.cpp \
     CCA/rtGetInf.cpp \
     CCA/rtGetNaN.cpp \
-    KCCA/kcca.cpp \
     CSP/csp_rec_ovo.cpp \
     CSP/csp_train_ovo.cpp \
-    DSIAPI/alorithmswitch.cpp \
-    DSIAPI/csp_train.cpp
+    CHART/impedancechart.cpp \
+    CHART/qcustomplot.cpp \
+    CHART/signalchart.cpp \
+    FFTW/motorimagery.cpp \
+    KCCA/kcca.cpp \
+    OFFLINE/saveeeg.cpp \
+    OpenBCI/Cyton.cpp \
+    PARADIGM/paradigm.cpp \
+    USART/rehabilitativeusart.cpp \
 
 FORMS += \
-        dialog.ui \
+    dialog.ui \
     CHART/signalchart.ui \
     CHART/impedancechart.ui \
     OFFLINE/saveeeg.ui \
@@ -108,8 +97,8 @@ LIBS += $$PWD/3rdLIB/OpenBLAS-0.3.10-x64/lib/libopenblas.dll.a
 LIBS += $$PWD/3rdLIB/OpenBLAS-0.3.10-x64/bin/mingw64_dll/libgfortran-3.dll
 
 
-QMAKE_CXXFLAGS += -DDSI_PLATFORM=-Windows-x86_64
-QMAKE_CFLAGS += -DDSI_PLATFORM=-Windows-x86_64
+#QMAKE_CXXFLAGS += -DDSI_PLATFORM=-Windows-x86_64
+#QMAKE_CFLAGS += -DDSI_PLATFORM=-Windows-x86_64
 
 RESOURCES += \
     pic.qrc
