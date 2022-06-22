@@ -1,25 +1,28 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QDialog>
-#include <QPushButton>
 #include <QCombobox>
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QMediaPlayer>
+#include <QPushButton>
 #include <QThread>
 #include <QVector>
-#include <QMediaPlayer>
 #include <QVideoWidget>
-#include <QMediaPlaylist>
-#include <DSIAPI/dsi_main.h>
+#include <QtConcurrent/QtConcurrent>
+
+#include <CCA/me_CCA.h>
 #include <CHART/signalchart.h>
 #include <CHART/impedancechart.h>
-#include <OFFLINE/saveeeg.h>
-#include <USART/rehabilitativeusart.h>
-#include <PARADIGM/paradigm.h>
-#include <DSIAPI/state_command.h>
-#include <CCA/me_CCA.h>
 #include <DSIAPI/alorithmswitch.h>
 #include <DSIAPI/csp_train.h>
-#include <QtConcurrent/QtConcurrent>
+#include <DSIAPI/dsi_main.h>
+#include <DSIAPI/state_command.h>
+#include <OFFLINE/saveeeg.h>
+#include <PARADIGM/paradigm.h>
+#include <USART/rehabilitativeusart.h>
+#include <deprecated/qmediaplaylist.h>
+#include <deprecated/playercontrols.h>
 
 namespace Ui {
 class Dialog;
@@ -57,6 +60,7 @@ private:
 
     //video
     QMediaPlayer *player;
+    PlayerControls *controls;
     QVideoWidget *videoWidget;
     QMediaPlaylist *medialist;
 

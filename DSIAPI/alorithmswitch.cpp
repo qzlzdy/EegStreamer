@@ -1,5 +1,7 @@
 #include "alorithmswitch.h"
 
+using namespace std;
+
 #define THRESHOLD 0.42
 
 void butter_filter_MI(const real_T data[12600], real_T eegx[12600]);

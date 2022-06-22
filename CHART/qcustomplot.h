@@ -45,14 +45,10 @@
 #include <QMargins>
 #include <qmath.h>
 #include <limits>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#  include <qnumeric.h>
-#  include <QPrinter>
-#  include <QPrintEngine>
-#else
-#  include <QtNumeric>
-#  include <QtPrintSupport/QtPrintSupport>
-#endif
+#include <QtNumeric>
+#include <QPrinter>
+#include <QPainterPath>
+#include <QPrintEngine>
 
 class QCPPainter;
 class QCustomPlot;
@@ -2482,7 +2478,7 @@ Q_DECLARE_TYPEINFO(QCPData, Q_MOVABLE_TYPE);
   This is the container in which QCPGraph holds its data.
   \see QCPData, QCPGraph::setData
 */
-typedef QMap<double, QCPData> QCPDataMap;
+typedef QMultiMap<double, QCPData> QCPDataMap;
 typedef QMapIterator<double, QCPData> QCPDataMapIterator;
 typedef QMutableMapIterator<double, QCPData> QCPDataMutableMapIterator;
 
@@ -2652,7 +2648,7 @@ Q_DECLARE_TYPEINFO(QCPCurveData, Q_MOVABLE_TYPE);
   \see QCPCurveData, QCPCurve::setData
 */
 
-typedef QMap<double, QCPCurveData> QCPCurveDataMap;
+typedef QMultiMap<double, QCPCurveData> QCPCurveDataMap;
 typedef QMapIterator<double, QCPCurveData> QCPCurveDataMapIterator;
 typedef QMutableMapIterator<double, QCPCurveData> QCPCurveDataMutableMapIterator;
 
@@ -2815,7 +2811,7 @@ Q_DECLARE_TYPEINFO(QCPBarData, Q_MOVABLE_TYPE);
   This is the container in which QCPBars holds its data.
   \see QCPBarData, QCPBars::setData
 */
-typedef QMap<double, QCPBarData> QCPBarDataMap;
+typedef QMultiMap<double, QCPBarData> QCPBarDataMap;
 typedef QMapIterator<double, QCPBarData> QCPBarDataMapIterator;
 typedef QMutableMapIterator<double, QCPBarData> QCPBarDataMutableMapIterator;
 
@@ -3137,7 +3133,7 @@ Q_DECLARE_TYPEINFO(QCPFinancialData, Q_MOVABLE_TYPE);
   This is the container in which QCPFinancial holds its data.
   \see QCPFinancial, QCPFinancial::setData
 */
-typedef QMap<double, QCPFinancialData> QCPFinancialDataMap;
+typedef QMultiMap<double, QCPFinancialData> QCPFinancialDataMap;
 typedef QMapIterator<double, QCPFinancialData> QCPFinancialDataMapIterator;
 typedef QMutableMapIterator<double, QCPFinancialData> QCPFinancialDataMutableMapIterator;
 

@@ -1,21 +1,22 @@
 #ifndef DSI_MAIN_H
 #define DSI_MAIN_H
 
-#include <QObject>
-#include "DSIAPI/DSI.h"
-#include <QList>
-#include <DSIAPI/dataform.h>
-#include <QThread>
-#include <QDebug>
-#include <QTimer>
-#include <QQueue>
-#include <QMutex>
-#include <QWaitCondition>
-#include <vector>
-#include <DSIAPI/alorithmswitch.h>
 #include <QCoreApplication>
+#include <QDebug>
+#include <QFile>
+#include <QList>
+#include <QMutex>
+#include <QObject>
+#include <QQueue>
+#include <QThread>
+#include <QTimer>
+#include <QWaitCondition>
 
-using namespace std;
+#include <vector>
+
+#include "DSIAPI/DSI.h"
+#include "DSIAPI/dataform.h"
+#include "DSIAPI/alorithmswitch.h"
 
 class DSI_Main : public QThread
 {

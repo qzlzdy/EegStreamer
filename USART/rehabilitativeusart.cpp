@@ -50,7 +50,7 @@ void rehabilitativeUsart::closePort()
 void rehabilitativeUsart::flexSend()
 {
     QString str;
-    str.append(0xbe);
+    str.append(QChar(0xbe));
     comPort->write(str.toLatin1());
     Delay_MSec_Suspend(100);
     comPort->write(str.toLatin1());
@@ -63,7 +63,7 @@ void rehabilitativeUsart::flexSend()
 void rehabilitativeUsart::extenSend()
 {
     QString str;
-    str.append(0x5f);
+    str.append(QChar(0x5f));
     comPort->write(str.toLatin1());
     Delay_MSec_Suspend(100);
     comPort->write(str.toLatin1());
@@ -76,10 +76,10 @@ void rehabilitativeUsart::extenSend()
 void rehabilitativeUsart::sendToBend(const int& data)
 {
     QString str;
-    str.append(0xff);
-    str.append(0x01);
-    str.append(data);
-    str.append(0xff^0x01^data);
+    str.append(QChar(0xff));
+    str.append(QChar(0x01));
+    str.append(QChar(data));
+    str.append(QChar(0xff^0x01^data));
     comPort->write(str.toLatin1());
 }
 

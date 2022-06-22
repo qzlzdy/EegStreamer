@@ -12,8 +12,6 @@
 #include "KCCA/kcca.h"
 #include <QDebug>
 
-using namespace std;
-
 class AlorithmSwitch
 {
 public:
@@ -22,7 +20,7 @@ public:
     virtual int operationStep(channelSignal &getSignalDataAdress) = 0;
 
 public:
-    vector<channelSignal> rawData;
+    std::vector<channelSignal> rawData;
 };
 
 
@@ -30,8 +28,8 @@ public:
 class CSP_CCA_AlorithmSwitch : public AlorithmSwitch
 {
 public:
-    CSP_CCA_AlorithmSwitch(vector<double> W1, vector<double> sample1, vector<double> W2, vector<double> sample2
-                           ,vector<double> W3,vector<double> sample3);
+    CSP_CCA_AlorithmSwitch(std::vector<double> W1, std::vector<double> sample1, std::vector<double> W2, std::vector<double> sample2
+                           ,std::vector<double> W3,std::vector<double> sample3);
 
     virtual ~CSP_CCA_AlorithmSwitch() override;
     virtual int operationStep(channelSignal& getSignalDataAdress) override;
@@ -39,12 +37,12 @@ public:
 private:
     int countIdle;
     int mi_count;
-    vector<double> _W1;//126
-    vector<double> _W2;
-    vector<double> _W3;
-    vector<double> _sample1;//180
-    vector<double> _sample2;
-    vector<double> _sample3;
+    std::vector<double> _W1;//126
+    std::vector<double> _W2;
+    std::vector<double> _W3;
+    std::vector<double> _sample1;//180
+    std::vector<double> _sample2;
+    std::vector<double> _sample3;
 };
 
 
@@ -63,7 +61,7 @@ private:
     bool firstRecviceDataFlag;//是否第一次接受数据
     motorImagery *motorImageryObject;
     int fftwStoreSize;
-    vector<vector<double>> windowTranslationData;
+    std::vector<std::vector<double>> windowTranslationData;
 };
 
 
@@ -71,8 +69,8 @@ private:
 class SW_CSP_CCA_AlorithmSwitch : public AlorithmSwitch
 {
 public:
-    SW_CSP_CCA_AlorithmSwitch(vector<double> W1, vector<double> sample1, vector<double> W2, vector<double> sample2
-                          ,vector<double> W3,vector<double> sample3);
+    SW_CSP_CCA_AlorithmSwitch(std::vector<double> W1, std::vector<double> sample1, std::vector<double> W2, std::vector<double> sample2
+                          ,std::vector<double> W3,std::vector<double> sample3);
 
     virtual ~SW_CSP_CCA_AlorithmSwitch() override;
     virtual int operationStep(channelSignal& getSignalDataAdress) override;
@@ -82,12 +80,12 @@ private:
     bool firstRecFlag;
     int countIdle;
     int mi_count;
-    vector<double> _W1;//126
-    vector<double> _W2;
-    vector<double> _W3;
-    vector<double> _sample1;//180
-    vector<double> _sample2;
-    vector<double> _sample3;
+    std::vector<double> _W1;//126
+    std::vector<double> _W2;
+    std::vector<double> _W3;
+    std::vector<double> _sample1;//180
+    std::vector<double> _sample2;
+    std::vector<double> _sample3;
 };
 
 
@@ -97,8 +95,8 @@ private:
 class CSP_KCCA_AlorithmSwitch : public AlorithmSwitch
 {
 public:
-    CSP_KCCA_AlorithmSwitch(vector<double> W1, vector<double> sample1, vector<double> W2, vector<double> sample2
-                           ,vector<double> W3,vector<double> sample3);
+    CSP_KCCA_AlorithmSwitch(std::vector<double> W1, std::vector<double> sample1, std::vector<double> W2, std::vector<double> sample2
+                           ,std::vector<double> W3,std::vector<double> sample3);
 
     virtual ~CSP_KCCA_AlorithmSwitch() override;
     virtual int operationStep(channelSignal& getSignalDataAdress) override;
@@ -106,20 +104,20 @@ public:
 private:
     int countIdle;
     int mi_count;
-    vector<double> _W1;//126
-    vector<double> _W2;
-    vector<double> _W3;
-    vector<double> _sample1;//180
-    vector<double> _sample2;
-    vector<double> _sample3;
+    std::vector<double> _W1;//126
+    std::vector<double> _W2;
+    std::vector<double> _W3;
+    std::vector<double> _sample1;//180
+    std::vector<double> _sample2;
+    std::vector<double> _sample3;
 };
 
 //SW_CSP_KCCA
 class SW_CSP_KCCA_AlorithmSwitch : public AlorithmSwitch
 {
 public:
-    SW_CSP_KCCA_AlorithmSwitch(vector<double> W1, vector<double> sample1, vector<double> W2, vector<double> sample2
-                          ,vector<double> W3,vector<double> sample3);
+    SW_CSP_KCCA_AlorithmSwitch(std::vector<double> W1, std::vector<double> sample1, std::vector<double> W2, std::vector<double> sample2
+                          ,std::vector<double> W3,std::vector<double> sample3);
 
     virtual ~SW_CSP_KCCA_AlorithmSwitch() override;
     virtual int operationStep(channelSignal& getSignalDataAdress) override;
@@ -129,12 +127,12 @@ private:
     bool firstRecFlag;
     int countIdle;
     int mi_count;
-    vector<double> _W1;//126
-    vector<double> _W2;
-    vector<double> _W3;
-    vector<double> _sample1;//180
-    vector<double> _sample2;
-    vector<double> _sample3;
+    std::vector<double> _W1;//126
+    std::vector<double> _W2;
+    std::vector<double> _W3;
+    std::vector<double> _sample1;//180
+    std::vector<double> _sample2;
+    std::vector<double> _sample3;
 };
 
 

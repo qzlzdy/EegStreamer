@@ -2,6 +2,8 @@
 #include "CCA/rt_nonfinite.h"
 #include "csp_train_ovo.h"
 
+using namespace std;
+
 // Type Definitions
 #ifndef struct_emxArray__common
 #define struct_emxArray__common

@@ -1,6 +1,7 @@
-
 #include "CCA/rt_nonfinite.h"
 #include "csp_rec_ovo.h"
+
+using namespace std;
 
 // Function Declarations
 static double KNN_(const double data[180], const double t_data[6]);

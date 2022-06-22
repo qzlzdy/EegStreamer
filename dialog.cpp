@@ -56,6 +56,7 @@ Dialog::~Dialog()
     delete widghtLayout;
     delete portBox;
     delete searchButton;
+    delete controls;
     delete player;
     delete videoWidget;
     delete medialist;
@@ -149,10 +150,21 @@ void Dialog::initSlot()
     QString vedioPath2 = QString("%1%2").arg(qApp->applicationDirPath().replace("/","\\")).arg(QString("\\video\\right.avi"));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath2));
-    player->setPlaylist(medialist);
+//    player->setPlaylist(medialist);
     medialist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
     QFont font ("Microsoft YaHei", 15, 70);
     ui->label->setFont(font);
+    // Qt6 deprecated QMediaPlaylist
+    controls = new PlayerControls;
+    controls->setState(player->playbackState());
+    controls->setMuted(controls->isMuted());
+    connect(controls, &PlayerControls::play, player, &QMediaPlayer::play);
+    connect(controls, &PlayerControls::pause, player, &QMediaPlayer::pause);
+    connect(controls, &PlayerControls::stop, player, &QMediaPlayer::stop);
+    connect(controls, &PlayerControls::next, medialist, &QMediaPlaylist::next);
+    connect(controls, &PlayerControls::changeRate, player, &QMediaPlayer::setPlaybackRate);
+    connect(controls, &PlayerControls::stop, videoWidget, QOverload<>::of(&QVideoWidget::update));
+    connect(player, &QMediaPlayer::playbackStateChanged, controls, &PlayerControls::setState);
 
     //fan_shi
     parad = new Paradigm;

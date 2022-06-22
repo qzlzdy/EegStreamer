@@ -12,8 +12,6 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 
-using namespace std;
-
 //CSP_CCA Train
 class CSP_Train: public QThread
 {
@@ -25,12 +23,12 @@ public:
     int operationStep(QString &csvFileName);
 
 public:
-    vector<double> _W1;//126
-    vector<double> _W2;
-    vector<double> _W3;
-    vector<double> _sample1;//180
-    vector<double> _sample2;
-    vector<double> _sample3;
+    std::vector<double> _W1;//126
+    std::vector<double> _W2;
+    std::vector<double> _W3;
+    std::vector<double> _sample1;//180
+    std::vector<double> _sample2;
+    std::vector<double> _sample3;
     QString fname;
     QFile *csvFile;
 
