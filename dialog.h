@@ -38,7 +38,7 @@ private:
     SignalChart *chartWidght;//chart
     impedancechart *impedanceWidght;//imp
     ehdu::Cyton *dataRec;//DSI
-    DSI_FFTW *dsiFFtWDataHandle;//fftw
+//    DSI_FFTW *dsiFFtWDataHandle;//fftw
     saveEEG *recordWidght;//record
     rehabilitativeUsart *sendPort;//usart
     QThread *portThread;//thread
@@ -63,13 +63,13 @@ private:
 
     //QTimer *waitChange;
 
-    class State_Command *fs_State;
+//    class State_Command *fs_State;
 
     QPushButton* startTrainButton;
     QComboBox *trainBox;
     QHBoxLayout *newLayout;
 
-    CSP_Train *CSPTrain;
+//    CSP_Train *CSPTrain;
 
 private:
     void initSlot();//初始化

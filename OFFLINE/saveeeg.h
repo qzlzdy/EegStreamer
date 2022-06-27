@@ -1,12 +1,13 @@
 #ifndef SAVEEEG_H
 #define SAVEEEG_H
 
-#include <QWidget>
+#include <QDebug>
 #include <QFile>
 #include <QMessageBox>
 #include <QTextStream>
-#include <QDebug>
-#include <DSIAPI/dataform.h>
+#include <QWidget>
+
+#include "OpenBCI/Dataform.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class saveEEG; }
@@ -33,7 +34,7 @@ private slots:
     void stopRecordFile();
     void recordHeadSlots();
 public slots:
-    void recordEEGslots(channelSignal Data);
+    void recordEEGslots(ehdu::ChannelSignal Data);
 signals:
     void isTimeToRecord(bool flag);
     void stopRecordSignals();

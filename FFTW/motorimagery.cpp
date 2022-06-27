@@ -1,5 +1,8 @@
 #include "motorimagery.h"
-#include <math.h>
+
+#include <cmath>
+
+#include "OpenBCI/Dataform.h"
 
 const double motorImagery::dv0[5] = { 0.022564564495471402, 0.0, -0.045129128990942805, 0.0, 0.022564564495471402 };
 const double motorImagery::dv1[5] = { 1.0, -3.4700191951417114, 4.5770105173722424, -2.72866765422065, 0.62266033998953441 };
@@ -85,7 +88,7 @@ void motorImagery::powerSpectrChooseMethod(int method)
     计算功率谱密度
     直接法--实部平方加上虚部平方开根号除以采样点个数
  *********************************************/
-double motorImagery::CalculatePowerSpectraByDirctMethod( int len, double real, double imag)
+double motorImagery::CalculatePowerSpectraByDirctMethod( int , double real, double imag)
 {
     double result = 0.0;
 //    result = (real/len) * (real/len) + (imag/len) * (imag/len);

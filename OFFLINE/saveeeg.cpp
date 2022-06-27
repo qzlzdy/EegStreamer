@@ -1,6 +1,8 @@
 #include "saveeeg.h"
 #include "ui_saveeeg.h"
 
+using namespace ehdu;
+
 saveEEG::saveEEG(QWidget *parent, QList<QString> saveSignal, QString reference) :
     QWidget(parent),
     ui(new Ui::saveEEG),signalTemp(saveSignal),saveReference(reference)
@@ -23,7 +25,7 @@ saveEEG::~saveEEG()
 }
 
 //记录槽函数
-void saveEEG::recordEEGslots(channelSignal Data)
+void saveEEG::recordEEGslots(ChannelSignal Data)
 {
     if(!csvFile->isOpen())
         return;
@@ -44,9 +46,6 @@ void saveEEG::recordEEGslots(channelSignal Data)
     saveData = Data.F3.first;
     *in<<","<<QString::number(saveData,'f',4);
 
-    saveData = Data.Fz.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
     saveData = Data.F4.first;
     *in<<","<<QString::number(saveData,'f',4);
 
@@ -60,42 +59,6 @@ void saveEEG::recordEEGslots(channelSignal Data)
     *in<<","<<QString::number(saveData,'f',4);
 
     saveData = Data.Pz.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.A1.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.Fp1.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.Fp2.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.T3.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.T5.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.O1.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.O2.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.F7.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.F8.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.A2.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.T6.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.T4.first;
     *in<<","<<QString::number(saveData,'f',4);
 
     *in<<"\n";

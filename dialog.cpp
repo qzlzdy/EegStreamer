@@ -8,18 +8,18 @@ Dialog::Dialog(QWidget *parent): QDialog(parent), ui(new Ui::Dialog){
     //去掉标题栏
 //    this->setWindowFlags(Qt::CustomizeWindowHint);
     //声明信号变量channelSignal
-    qRegisterMetaType<channelSignal>("channelSignal");
+    qRegisterMetaType<ChannelSignal>("ChannelSignal");
     //加载QSS
     loadQssSlot("Style");
     //初始化对象
     chartWidght = nullptr;
     impedanceWidght = nullptr;
-    dsiFFtWDataHandle = nullptr;
+//    dsiFFtWDataHandle = nullptr;
     recordWidght = nullptr;
     sendPort = nullptr;
     portThread = nullptr;
     parad = nullptr;
-    CSPTrain = nullptr;
+//    CSPTrain = nullptr;
 
     initSlot();
     //初始化信号与槽
@@ -35,13 +35,13 @@ Dialog::~Dialog(){
     delete impedanceWidght;
     delete recordWidght;
     delete sendPort;
-    if(dsiFFtWDataHandle != nullptr){
-        delete dsiFFtWDataHandle;
-    }
+//    if(dsiFFtWDataHandle != nullptr){
+//        delete dsiFFtWDataHandle;
+//    }
     delete startButton;
     delete stopButton;
     delete trainBox;
-    delete CSPTrain;
+//    delete CSPTrain;
     delete startTrainButton;
     delete fftwStartButton;
     delete fftwStopButton;
@@ -64,12 +64,12 @@ void Dialog::initSlot(){
     if(chartWidght == nullptr || impedanceWidght == nullptr
                               || recordWidght == nullptr){
         //channelChart
-        chartWidght = new SignalChart(nullptr, dataRec->chooseChannelString());
+        chartWidght = new SignalChart(nullptr, dataRec->chooseChannelString);
         chartWidght->chartInit();
         //impedanceChart
         impedanceWidght = new impedancechart;
         //saveEEG
-        recordWidght = new saveEEG(this, dataRec->chooseChannelString(),
+        recordWidght = new saveEEG(this, dataRec->chooseChannelString,
                                    "" /*FIXME DSI_REFERENCE_DATA*/);
         recordWidght->startRecordButton(false);
         recordWidght->stopRecordButton(false);
@@ -167,7 +167,7 @@ void Dialog::initSlot(){
     fanshiLayout->setContentsMargins(0,0,0,0);
     ui->paradigm->setLayout(fanshiLayout);
 
-    fs_State = nullptr;
+//    fs_State = nullptr;
     //waitChange = new QTimer;
     //QObject::connect(waitChange, &QTimer::timeout, [&](){ui->tabWidget->setCurrentIndex(0); });
     QObject::connect(parad, &Paradigm::closeSignal, [&](){ fftwStop(); });
@@ -263,24 +263,24 @@ void Dialog::connetSlot()
 
     QObject::connect(startTrainButton, &QPushButton::clicked, this, [&](){
         startTrainButton->setEnabled(false);
-        if(CSPTrain!=nullptr){
-            delete CSPTrain;
-        }
-        CSPTrain = new CSP_Train;
+//        if(CSPTrain!=nullptr){
+//            delete CSPTrain;
+//        }
+//        CSPTrain = new CSP_Train;
 
-        QObject::connect(CSPTrain, &CSP_Train::finish_train,
-                         this, [&](bool flag){
-            startTrainButton->setEnabled(true);
-            if(flag==0){
-                QMessageBox::about(this,"DSI","Train File Open Failed!");
-            }
-            else{
-                QMessageBox::about(this,"DSI","Finish Train!");
-            }
-        });
+//        QObject::connect(CSPTrain, &CSP_Train::finish_train,
+//                         this, [&](bool flag){
+//            startTrainButton->setEnabled(true);
+//            if(flag==0){
+//                QMessageBox::about(this,"DSI","Train File Open Failed!");
+//            }
+//            else{
+//                QMessageBox::about(this,"DSI","Finish Train!");
+//            }
+//        });
 
-        CSPTrain->fname = recordWidght->lineeditdata();
-        CSPTrain->start();
+//        CSPTrain->fname = recordWidght->lineeditdata();
+//        CSPTrain->start();
     });
 }
 
@@ -299,9 +299,9 @@ void Dialog::cytonStart(){
         dataRec = new Cyton(nullptr);
         QObject::connect(dataRec, &Cyton::bufferDataSignal,
                          chartWidght, &SignalChart::chartAddData);
-        QObject::connect(dataRec, &Cyton::fixedTimeSignal,
-                         impedanceWidght, &impedancechart::impedanceQualitySlot);
-        QObject::connect(impedanceWidght,&impedancechart::resetSignals,dsiDataRec,&DSI_Main::resetSlots);
+//        QObject::connect(dataRec, &Cyton::fixedTimeSignal,
+//                         impedanceWidght, &impedancechart::impedanceQualitySlot);
+        QObject::connect(impedanceWidght,&impedancechart::resetSignals,dataRec,&Cyton::resetSlots);
     }
     if(!dataRec->BufferingStart()){
         dataRec->ImpedanceSlots();
@@ -333,105 +333,105 @@ void Dialog::cytonStop(){
     recordWidght->stopRecordButton(false);
     startTrainButton->setEnabled(false);
     trainBox->setEnabled(false);
-    if(dsiFFtWDataHandle != nullptr){
-        dsiFFtWDataHandle->readingFlag = false;
-        dataRec->fftwSwitchFlag = false;
-        dsiFFtWDataHandle->deleteLater();
-        dsiFFtWDataHandle = nullptr;
-    }
+//    if(dsiFFtWDataHandle != nullptr){
+//        dsiFFtWDataHandle->readingFlag = false;
+//        dataRec->fftwSwitchFlag = false;
+//        dsiFFtWDataHandle->deleteLater();
+//        dsiFFtWDataHandle = nullptr;
+//    }
     //终止线程，关闭DSI
     delete dataRec;
     dataRec = nullptr;
     //imp复原
-    channelImpedance impData;
+    ChannelImpedance impData;
     impedanceWidght->impedanceQualitySlot(impData);
 }
 
 //打开FFTW===================算法入口===================
 void Dialog::fftwStart(){
     if(trainBox->currentText() == "CSP and CCA.nomarl"){
-        if(CSPTrain==nullptr){
-            QMessageBox::about(this,"Cyton","Train First!");
-            return;
-        }
-        dsiFFtWDataHandle = new DSI_FFTW(new CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-                                                                    CSPTrain->_W2, CSPTrain->_sample2,
-                                                                    CSPTrain->_W3, CSPTrain->_sample3));
-        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-        dsiFFtWDataHandle->recordInit();
+//        if(CSPTrain==nullptr){
+//            QMessageBox::about(this,"Cyton","Train First!");
+//            return;
+//        }
+//        dsiFFtWDataHandle = new DSI_FFTW(new CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
+//                                                                    CSPTrain->_W2, CSPTrain->_sample2,
+//                                                                    CSPTrain->_W3, CSPTrain->_sample3));
+//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
+//        dsiFFtWDataHandle->recordInit();
     }
     else if(trainBox->currentText() == "CSP and CCA.SW"){
-        if(CSPTrain==nullptr){
+//        if(CSPTrain==nullptr){
             QMessageBox::about(this, "Cyton","Train First!");
             return;
-        }
-        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-                                                                       CSPTrain->_W2, CSPTrain->_sample2,
-                                                                       CSPTrain->_W3, CSPTrain->_sample3));
-        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-        dsiFFtWDataHandle->recordInit();
+//        }
+//        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
+//                                                                       CSPTrain->_W2, CSPTrain->_sample2,
+//                                                                       CSPTrain->_W3, CSPTrain->_sample3));
+//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
+//        dsiFFtWDataHandle->recordInit();
 
         /**********************以下为新增**********************/
     }
     else if(trainBox->currentText()=="CSP and KCCA.nomarl"){
-        if(CSPTrain == nullptr){
+//        if(CSPTrain == nullptr){
             QMessageBox::about(this,"Cyton","Train First!");
             return;
-        }
-        dsiFFtWDataHandle = new DSI_FFTW(new CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-                                                                    CSPTrain->_W2, CSPTrain->_sample2,
-                                                                    CSPTrain->_W3, CSPTrain->_sample3));
-        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-        dsiFFtWDataHandle->recordInit();
+//        }
+//        dsiFFtWDataHandle = new DSI_FFTW(new CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
+//                                                                    CSPTrain->_W2, CSPTrain->_sample2,
+//                                                                    CSPTrain->_W3, CSPTrain->_sample3));
+//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
+//        dsiFFtWDataHandle->recordInit();
     }
     else if(trainBox->currentText()=="CSP and KCCA.SW"){
-        if(CSPTrain==nullptr){
+//        if(CSPTrain==nullptr){
             QMessageBox::about(this, "Cyton","Train First!");
             return;
-        }
-        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-                                                                       CSPTrain->_W2, CSPTrain->_sample2,
-                                                                       CSPTrain->_W3, CSPTrain->_sample3));
-        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-        dsiFFtWDataHandle->recordInit();
+//        }
+//        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
+//                                                                       CSPTrain->_W2, CSPTrain->_sample2,
+//                                                                       CSPTrain->_W3, CSPTrain->_sample3));
+//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
+//        dsiFFtWDataHandle->recordInit();
         /**********************以上为新增**********************/
 
     }
     else if(trainBox->currentText() == "FFTW.SW"){
-        dsiFFtWDataHandle = new DSI_FFTW(new FFTW_AlorithmSwitch());
-        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-        dsiFFtWDataHandle->recordInit();
+//        dsiFFtWDataHandle = new DSI_FFTW(new FFTW_AlorithmSwitch());
+//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
+//        dsiFFtWDataHandle->recordInit();
     }
 
-    dsiFFtWDataHandle->uiState = 0;
+//    dsiFFtWDataHandle->uiState = 0;
     dataRec->fftwSwitchFlag = true;
-    dsiFFtWDataHandle->start();
+//    dsiFFtWDataHandle->start();
     fftwStartButton->setEnabled(false);
     fftwStopButton->setEnabled(true);
     startTrainButton->setEnabled(false);
     trainBox->setEnabled(false);
 
-    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C3LeftSignal,this,[&](){ changeMode(MI_LEFT); });
-    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C4RightSignal,this,[&](){ changeMode(MI_RIGHT); });
-    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::IdleSignal,this,[&](){ changeMode(MI_IDLE); });
+//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C3LeftSignal,this,[&](){ changeMode(MI_LEFT); });
+//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C4RightSignal,this,[&](){ changeMode(MI_RIGHT); });
+//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::IdleSignal,this,[&](){ changeMode(MI_IDLE); });
     ui->tabWidget->setCurrentIndex(2);
-    fs_State = new Stand_Mode;
+//    fs_State = new Stand_Mode;
     parad->StandMode();
 }
 
 //关闭FFTW
 void Dialog::fftwStop(){
-    if(fs_State == nullptr){
-        return;
-    }
+//    if(fs_State == nullptr){
+//        return;
+//    }
 
-    delete fs_State;
-    fs_State = nullptr;
+//    delete fs_State;
+//    fs_State = nullptr;
 
-    dsiFFtWDataHandle->readingFlag = false;
+//    dsiFFtWDataHandle->readingFlag = false;
     dataRec->fftwSwitchFlag = false;
-    dsiFFtWDataHandle->deleteLater();
-    dsiFFtWDataHandle = nullptr;
+//    dsiFFtWDataHandle->deleteLater();
+//    dsiFFtWDataHandle = nullptr;
     fftwStartButton->setEnabled(true);
     fftwStopButton->setEnabled(false);
     if(trainBox->currentText()!="FFTW.SW"){
@@ -482,16 +482,16 @@ void Dialog::toMI(){
 //要有个按钮开关——范式（这两个按钮在STAND界面）
 //初始化——Stand状态——开SSVEP
 void Dialog::changeMode(const int& data){
-    if(fs_State != nullptr){
-        State_Command *tmp = fs_State->Operation(data, sendPort, parad, this);
-        if(tmp != nullptr){
-            delete fs_State;
-            fs_State = tmp;
-        }
+//    if(fs_State != nullptr){
+//        State_Command *tmp = fs_State->Operation(data, sendPort, parad, this);
+//        if(tmp != nullptr){
+//            delete fs_State;
+//            fs_State = tmp;
+//        }
 
-        dsiFFtWDataHandle->uiState = fs_State->nowState;
+//        dsiFFtWDataHandle->uiState = fs_State->nowState;
         //dsiFFtWDataHandle->uiState = 1;
-    }
+//    }
 }
 
 //QTimer不能由另外的thread启动或者关闭，所以加下面两个函数

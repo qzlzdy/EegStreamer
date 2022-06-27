@@ -2,32 +2,29 @@
 #define IMPEDANCECHART_H
 
 #include <QWidget>
-#include <DSIAPI/dataform.h>
 
-namespace Ui {
-class impedancechart;
-}
+#include "OpenBCI/Dataform.h"
 
-class impedancechart : public QWidget
-{
+using namespace ehdu;
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class impedancechart; }
+QT_END_NAMESPACE
+
+class impedancechart: public QWidget{
     Q_OBJECT
-
 public:
     explicit impedancechart(QWidget *parent = 0);
     ~impedancechart();
-
+public slots:
+    void impedanceQualitySlot(ehdu::ChannelImpedance impData);
+signals:
+    void resetSignals();
+private slots:
+    void onResetButtonClicked();
 private:
     Ui::impedancechart *ui;
     int impedanceQualityValue(double v);
-
-public slots:
-    void impedanceQualitySlot(channelImpedance impData);
-
-private slots:
-    void on_resetButton_clicked();
-
-signals:
-    void resetSignals();
 };
 
 #endif // IMPEDANCECHART_H

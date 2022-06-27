@@ -1,1 +1,0 @@
-把libopenblas.dll放入exe所在文件夹，如果报错，可以将mingw64_dll下的dll文件也放进去
