@@ -39,7 +39,6 @@ HEADERS += \
     CHART/impedancechart.h \
     CHART/qcustomplot.h \
     CHART/signalchart.h \
-    FFTW/fftw3.h \
     FFTW/motorimagery.h \
     KCCA/kcca.h \
     OFFLINE/saveeeg.h \
@@ -77,29 +76,15 @@ FORMS += \
     OFFLINE/saveeeg.ui \
     PARADIGM/paradigm.ui
 
-LIBS += "$$PWD/LIB/libfftw3-3.dll"
-#LIBS += libfftw3-3.dll
+INCLUDEPATH += \
+        $$PWD/ThirdParty/fftw/include \
+        $$PWD/ThirdParty/OpenBLAS/include \
+        $$PWD/ThirdParty/armadillo/include
 
-
-# 使用armadillo
-INCLUDEPATH+= $$PWD/3rdLIB/armadillo-9.900.2/include
-
-# 使用自带的blas和lapack
-#LIBS += -L$$PWD/3rdLIB/lib_win64 \
-#        -lblas_win64_MT \
-#        -llapack_win64_MT
-
-#使用openblas，和上述二选一
-INCLUDEPATH+= $$PWD/3rdLIB/OpenBLAS-0.3.10-x64\include
-LIBS += -L$$PWD/3rdLIB/OpenBLAS-0.3.10-x64/lib \
-        -llibopenblas
-LIBS += $$PWD/3rdLIB/OpenBLAS-0.3.10-x64/lib/libopenblas.dll.a
-LIBS += $$PWD/3rdLIB/OpenBLAS-0.3.10-x64/bin/mingw64_dll/libgfortran-3.dll
-
-
-#QMAKE_CXXFLAGS += -DDSI_PLATFORM=-Windows-x86_64
-#QMAKE_CFLAGS += -DDSI_PLATFORM=-Windows-x86_64
+LIBS += \
+    $$PWD/ThirdParty/fftw/lib/libfftw3.a \
+    $$PWD/ThirdParty/OpenBLAS/lib/libopenblas.so \
+    $$PWD/ThirdParty/armadillo/lib/libarmadillo.so
 
 RESOURCES += \
     pic.qrc
-

@@ -97,30 +97,22 @@ void Paradigm::init()
     process2 = new QProcess;
     process2->start("Stimulus-12hz.exe");
 
-    Sleep(500);
+//    Sleep(500);
 
     //获取窗口1
-    HWND wid1 = FindWindow(L"Qt5QWindowIcon",L"10hz");
+//    HWND wid1 = FindWindow(L"Qt5QWindowIcon",L"10hz");
     //设置1父窗口
-    HWND parentHwnd1 = (HWND)ui->left_widget->winId();
-    SetParent(wid1, parentHwnd1);
+//    HWND parentHwnd1 = (HWND)ui->left_widget->winId();
+//    SetParent(wid1, parentHwnd1);
     //设置窗口1位置
-    SetWindowPos(wid1, HWND_TOP, -5, -5, 200, 200, SWP_FRAMECHANGED);
+//    SetWindowPos(wid1, HWND_TOP, -5, -5, 200, 200, SWP_FRAMECHANGED);
 
     //获取窗口2
-    HWND wid2 = FindWindow(L"Qt5QWindowIcon",L"12hz");
+//    HWND wid2 = FindWindow(L"Qt5QWindowIcon",L"12hz");
     //设置2父窗口
-    HWND parentHwnd2 = (HWND)ui->right_widget->winId();
-    SetParent(wid2, parentHwnd2);
+//    HWND parentHwnd2 = (HWND)ui->right_widget->winId();
+//    SetParent(wid2, parentHwnd2);
     //设置窗口2位置
-    SetWindowPos(wid2, HWND_TOP, -5, -5, 200, 200, SWP_FRAMECHANGED);
-
-//    WId wid1 = (WId)FindWindow(L"Qt5QWindowIcon",L"7hz");
-//    QWindow *m_window1;
-//    m_window1 = QWindow::fromWinId(wid1);
-//    QWidget *m_widget;
-//    m_widget = QWidget::createWindowContainer(m_window1,ui->left_widget);
-//    m_widget->setMinimumSize(150,150);
-//    m_widget->setMaximumSize(150,150);
+//    SetWindowPos(wid2, HWND_TOP, -5, -5, 200, 200, SWP_FRAMECHANGED);
 
 }

@@ -1,5 +1,8 @@
 ### Project Specific stuff
-ThirdParty
+ThirdParty/src
+ThirdParty/*/lib
+ThirdParty/*/bin
+ThirdParty/*/share
 ### Qt template
 # User-specific stuff:
 *.pro.user
