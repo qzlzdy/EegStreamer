@@ -27,14 +27,14 @@ private slots:
 private:
     QList<QString> paintSignals;
     Ui::signalChart *ui;
-    QCPGraph *F3;
-    QCPGraph *F4;
+    QCPGraph *Fp1;
+    QCPGraph *Fp2;
     QCPGraph *C3;
-    QCPGraph *Cz;
     QCPGraph *C4;
-    QCPGraph *P3;
-    QCPGraph *Pz;
-    QCPGraph *P4;
+    QCPGraph *P7;
+    QCPGraph *P8;
+    QCPGraph *O1;
+    QCPGraph *O2;
     double xAxisNum;
 };
 

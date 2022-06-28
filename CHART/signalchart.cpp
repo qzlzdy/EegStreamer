@@ -55,17 +55,17 @@ void SignalChart::chartInit(){
         QString temp = paintSignals.at(i);
         QPen qPen1;
 
-        if(temp == "F3"){
-            F3 = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(0,255,255));
-            F3->setPen(qPen1);
-            F3->setName("F3");
+        if(temp == "Fp1"){
+            Fp1 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(255, 0, 0));
+            Fp1->setPen(qPen1);
+            Fp1->setName("Fp1");
         }
-        else if(temp == "F4"){
-            F4 = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(255,255,0));
-            F4->setPen(qPen1);
-            F4->setName("F4");
+        else if(temp == "Fp2"){
+            Fp2 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(0, 255, 0));
+            Fp2->setPen(qPen1);
+            Fp2->setName("Fp2");
         }
         else if(temp == "C3"){
             C3 = ui->chartWidget->addGraph();
@@ -73,35 +73,35 @@ void SignalChart::chartInit(){
             C3->setPen(qPen1);
             C3->setName("C3");
         }
-        else if(temp == "Cz"){
-            Cz = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(255,0,128));
-            Cz->setPen(qPen1);
-            Cz->setName("Cz");
-        }
         else if(temp == "C4"){
             C4 = ui->chartWidget->addGraph();
             qPen1.setColor(QColor(128,0,255));
             C4->setPen(qPen1);
             C4->setName("C4");
         }
-        else if(temp == "P3"){
-            P3 = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(64,128,0));
-            P3->setPen(qPen1);
-            P3->setName("P3");
+        else if(temp == "P7"){
+            P7 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(64, 64, 0));
+            P7->setPen(qPen1);
+            P7->setName("P7");
         }
-        else if(temp == "Pz"){
-            Pz = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(0,128,64));
-            Pz->setPen(qPen1);
-            Pz->setName("Pz");
+        else if(temp == "P8"){
+            P8 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(0, 255, 64));
+            P8->setPen(qPen1);
+            P8->setName("P8");
         }
-        else if(temp == "P4"){
-            P4 = ui->chartWidget->addGraph();
-            qPen1.setColor(QColor(128,0,64));
-            P4->setPen(qPen1);
-            P4->setName("P4");
+        else if(temp == "O1"){
+            O1 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(128, 0, 128));
+            O1->setPen(qPen1);
+            O1->setName("O1");
+        }
+        else if(temp == "O2"){
+            O2 = ui->chartWidget->addGraph();
+            qPen1.setColor(QColor(0, 128, 128));
+            O2->setPen(qPen1);
+            O2->setName("O2");
         }
     }
 
@@ -120,29 +120,29 @@ void SignalChart::chartAddData(ChannelSignal data){
     if(xAxisNum / XAXIS_STEP > GRAPH_POINT_NUM){
         for(int i = 0; i < paintSignals.size(); ++i){
             QString temp = paintSignals.at(i);
-            if(temp == "F3"){
-                F3->clearData();
+            if(temp == "Fp1"){
+                Fp1->clearData();
             }
-            else if(temp == "F4"){
-                F4->clearData();
+            else if(temp == "Fp2"){
+                Fp2->clearData();
             }
             else if(temp == "C3"){
                 C3->clearData();
             }
-            else if(temp == "Cz"){
-                Cz->clearData();
-            }
             else if(temp == "C4"){
                 C4->clearData();
             }
-            else if(temp == "P3"){
-                P3->clearData();
+            else if(temp == "P7"){
+                P7->clearData();
             }
-            else if(temp == "Pz"){
-                Pz->clearData();
+            else if(temp == "P8"){
+                P8->clearData();
             }
-            else if(temp == "P4"){
-                P4->clearData();
+            else if(temp == "O1"){
+                O1->clearData();
+            }
+            else if(temp == "O2"){
+                O2->clearData();
             }
         }
         xAxisNum = 0;
@@ -150,29 +150,29 @@ void SignalChart::chartAddData(ChannelSignal data){
     //添加数据
     for(int i = 0; i < paintSignals.size(); ++i){
         QString temp = paintSignals.at(i);
-        if(temp == "F3"){
-            F3->addData(xAxisNum, data.F3.first);
+        if(temp == "Fp1"){
+            Fp1->addData(xAxisNum, data.Fp1.first);
         }
-        else if(temp == "F4"){
-            F4->addData(xAxisNum, data.F4.first);
+        else if(temp == "Fp2"){
+            Fp2->addData(xAxisNum, data.Fp2.first);
         }
         else if(temp == "C3"){
             C3->addData(xAxisNum, data.C3.first);
         }
-        else if(temp == "Cz"){
-            Cz->addData(xAxisNum, data.Cz.first);
-        }
         else if(temp == "C4"){
             C4->addData(xAxisNum, data.C4.first);
         }
-        else if(temp == "P3"){
-            P3->addData(xAxisNum, data.P3.first);
+        else if(temp == "P7"){
+            P7->addData(xAxisNum, data.P7.first);
         }
-        else if(temp == "Pz"){
-            Pz->addData(xAxisNum, data.Pz.first);
+        else if(temp == "P8"){
+            P8->addData(xAxisNum, data.P8.first);
         }
-        else if(temp == "P4"){
-            P4->addData(xAxisNum, data.P4.first);
+        else if(temp == "O1"){
+            O1->addData(xAxisNum, data.O1.first);
+        }
+        else if(temp == "O2"){
+            O2->addData(xAxisNum, data.O2.first);
         }
     }
     if(ind > 2){

@@ -20,11 +20,11 @@ public slots:
     void impedanceQualitySlot(ehdu::ChannelImpedance impData);
 signals:
     void resetSignals();
-private slots:
-    void onResetButtonClicked();
 private:
     Ui::impedancechart *ui;
     int impedanceQualityValue(double v);
+private slots:
+    void onResetButtonClicked();
 };
 
 #endif // IMPEDANCECHART_H

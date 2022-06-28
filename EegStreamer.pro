@@ -79,12 +79,17 @@ FORMS += \
 INCLUDEPATH += \
         $$PWD/ThirdParty/fftw/include \
         $$PWD/ThirdParty/OpenBLAS/include \
-        $$PWD/ThirdParty/armadillo/include
+        $$PWD/ThirdParty/armadillo/include \
+        $$PWD/ThirdParty/brainflow/inc
 
 LIBS += \
     $$PWD/ThirdParty/fftw/lib/libfftw3.a \
     $$PWD/ThirdParty/OpenBLAS/lib/libopenblas.so \
-    $$PWD/ThirdParty/armadillo/lib/libarmadillo.so
+    $$PWD/ThirdParty/armadillo/lib/libarmadillo.so \
+    $$PWD/ThirdParty/brainflow/lib/libBrainflow.a \
+    $$PWD/ThirdParty/brainflow/lib/libMLModule.so \
+    $$PWD/ThirdParty/brainflow/lib/libDataHandler.so \
+    $$PWD/ThirdParty/brainflow/lib/libBoardController.so
 
 RESOURCES += \
     pic.qrc

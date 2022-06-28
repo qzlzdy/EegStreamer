@@ -21,39 +21,39 @@ using ChannelData = std::pair<double, QString>;
 
 struct ChannelImpedance{
     ChannelImpedance(){
-        F3.first = 0;
-        F3.second = "F3";
-        F4.first = 0;
-        F4.second = "F4";
+        Fp1.first = 0;
+        Fp1.second = "Fp1";
+        Fp2.first = 0;
+        Fp2.second = "Fp2";
         C3.first = 0;
         C3.second = "C3";
-        Cz.first = 0;
-        Cz.second = "Cz";
         C4.first = 0;
         C4.second = "C4";
-        P3.first = 0;
-        P3.second = "P3";
-        Pz.first = 0;
-        Pz.second = "Pz";
-        P4.first = 0;
-        P4.second = "P4";
+        P7.first = 0;
+        P7.second = "P7";
+        P8.first = 0;
+        P8.second = "P8";
+        O1.first = 0;
+        O1.second = "O1";
+        O2.first = 0;
+        O2.second = "O2";
     }
-    ChannelData F3, F4, C3, Cz, C4, P3, Pz, P4;
+    ChannelData Fp1, Fp2, C3, C4, P7, P8, O1, O2;
 };
 
 struct ChannelSignal{
     ChannelSignal(){
-        F3.second = "F3";
-        F4.second = "F4";
+        Fp1.second = "Fp1";
+        Fp2.second = "Fp2";
         C3.second = "C3";
-        Cz.second = "Cz";
         C4.second = "C4";
-        P3.second = "P3";
-        Pz.second = "Pz";
-        P4.second = "P4";
+        P7.second = "P7";
+        P8.second = "P8";
+        O1.second = "O1";
+        O2.second = "O2";
         channelNum = 8;
     }
-    ChannelData F3, F4, C3, Cz, C4, P3, Pz, P4;
+    ChannelData Fp1, Fp2, C3, C4, P7, P8, O1, O2;
     int channelNum;
 };
 

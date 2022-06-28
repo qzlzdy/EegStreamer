@@ -1,15 +1,12 @@
 #include "impedancechart.h"
 #include "ui_impedancechart.h"
 
-impedancechart::impedancechart(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::impedancechart)
-{
+impedancechart::impedancechart(QWidget *parent):
+QWidget(parent), ui(new Ui::impedancechart){
     ui->setupUi(this);
 }
 
-impedancechart::~impedancechart()
-{
+impedancechart::~impedancechart(){
     delete ui;
 }
 
@@ -21,80 +18,137 @@ impedancechart::~impedancechart()
 绿：low       <1.0 M0hm
 baseline reset
 **************************************/
-int impedancechart::impedanceQualityValue(double v)
-{
-    if(v>0.0 && v<1.0){//green
+int impedancechart::impedanceQualityValue(double v){
+    if(0 < v && v < 1){//green
         return 3;
-    }else if(v>=1.0 && v<10.0){//yellow
+    }
+    else if(1 <= v && v < 10){//yellow
         return 2;
-    }else if(v>=10.0 && v<100.0){//red
+    }
+    else if(10 <= v && v < 100){//red
         return 1;
-    }else{//black
+    }
+    else{//black
         return 0;
     }
 }
 
 void impedancechart::impedanceQualitySlot(ChannelImpedance impData){
-    switch(impedanceQualityValue(impData.F3.first))
-    {
-        case 0: ui->F3label->setStyleSheet("background-color:black");break;
-        case 1: ui->F3label->setStyleSheet("background-color:red");break;
-        case 2: ui->F3label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->F3label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.Fp1.first)){
+    case 0:
+        ui->Fp1label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->Fp1label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->Fp1label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->Fp1label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.F4.first))
-    {
-        case 0: ui->F4label->setStyleSheet("background-color:black");break;
-        case 1: ui->F4label->setStyleSheet("background-color:red");break;
-        case 2: ui->F4label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->F4label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.Fp2.first)){
+    case 0:
+        ui->Fp2label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->Fp2label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->Fp2label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->Fp2label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.C3.first))
-    {
-        case 0: ui->C3label->setStyleSheet("background-color:black");break;
-        case 1: ui->C3label->setStyleSheet("background-color:red");break;
-        case 2: ui->C3label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->C3label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.C3.first)){
+    case 0:
+        ui->C3label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->C3label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->C3label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->C3label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.C4.first))
-    {
-        case 0: ui->C4label->setStyleSheet("background-color:black");break;
-        case 1: ui->C4label->setStyleSheet("background-color:red");break;
-        case 2: ui->C4label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->C4label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.C4.first)){
+    case 0:
+        ui->C4label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->C4label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->C4label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->C4label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.Cz.first))
-    {
-        case 0: ui->Czlabel->setStyleSheet("background-color:black");break;
-        case 1: ui->Czlabel->setStyleSheet("background-color:red");break;
-        case 2: ui->Czlabel->setStyleSheet("background-color:yellow");break;
-        case 3: ui->Czlabel->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.P7.first)){
+    case 0:
+        ui->P7label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->P7label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->P7label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->P7label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.P3.first))
-    {
-        case 0: ui->P3label->setStyleSheet("background-color:black");break;
-        case 1: ui->P3label->setStyleSheet("background-color:red");break;
-        case 2: ui->P3label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->P3label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.P8.first)){
+    case 0:
+        ui->P8label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->P8label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->P8label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->P8label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.P4.first))
-    {
-        case 0: ui->P4label->setStyleSheet("background-color:black");break;
-        case 1: ui->P4label->setStyleSheet("background-color:red");break;
-        case 2: ui->P4label->setStyleSheet("background-color:yellow");break;
-        case 3: ui->P4label->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.O1.first)){
+    case 0:
+        ui->O1label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->O1label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->O1label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->O1label->setStyleSheet("background-color:green");
+        break;
     }
-    switch(impedanceQualityValue(impData.Pz.first))
-    {
-        case 0: ui->Pzlabel->setStyleSheet("background-color:black");break;
-        case 1: ui->Pzlabel->setStyleSheet("background-color:red");break;
-        case 2: ui->Pzlabel->setStyleSheet("background-color:yellow");break;
-        case 3: ui->Pzlabel->setStyleSheet("background-color:green");break;
+    switch(impedanceQualityValue(impData.O2.first)){
+    case 0:
+        ui->O2label->setStyleSheet("background-color:black");
+        break;
+    case 1:
+        ui->O2label->setStyleSheet("background-color:red");
+        break;
+    case 2:
+        ui->O2label->setStyleSheet("background-color:yellow");
+        break;
+    case 3:
+        ui->O2label->setStyleSheet("background-color:green");
+        break;
     }
 }
 
 //reset
-void impedancechart::onResetButtonClicked()
-{
+void impedancechart::onResetButtonClicked(){
     emit resetSignals();
 }

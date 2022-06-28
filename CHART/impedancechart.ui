@@ -245,7 +245,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="T5label">
+     <widget class="QLabel" name="P7label">
       <property name="geometry">
        <rect>
         <x>40</x>
@@ -258,13 +258,13 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>T5</string>
+       <string>P7</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="T6label">
+     <widget class="QLabel" name="P8label">
       <property name="geometry">
        <rect>
         <x>263</x>
@@ -277,7 +277,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>T6</string>
+       <string>P8</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

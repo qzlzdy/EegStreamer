@@ -3,10 +3,9 @@
 
 using namespace ehdu;
 
-saveEEG::saveEEG(QWidget *parent, QList<QString> saveSignal, QString reference) :
-    QWidget(parent),
-    ui(new Ui::saveEEG),signalTemp(saveSignal),saveReference(reference)
-{
+saveEEG::saveEEG(QWidget *parent, QList<QString> saveSignal, QString reference):
+QWidget(parent), ui(new Ui::saveEEG),
+signalTemp(saveSignal),saveReference(reference){
     ui->setupUi(this);
     csvFile = new QFile();
     count = 0;
@@ -15,20 +14,20 @@ saveEEG::saveEEG(QWidget *parent, QList<QString> saveSignal, QString reference) 
     QObject::connect(ui->stopRecordButton,&QPushButton::clicked,this,&saveEEG::stopRecordFile);
 }
 
-saveEEG::~saveEEG()
-{
-    if(csvFile->isOpen())
+saveEEG::~saveEEG(){
+    if(csvFile->isOpen()){
         csvFile->close();
+    }
     delete csvFile;
     delete in;
     delete ui;
 }
 
 //记录槽函数
-void saveEEG::recordEEGslots(ChannelSignal Data)
-{
-    if(!csvFile->isOpen())
+void saveEEG::recordEEGslots(ChannelSignal Data){
+    if(!csvFile->isOpen()){
         return;
+    }
 
     //时间
     ++count;
@@ -37,59 +36,55 @@ void saveEEG::recordEEGslots(ChannelSignal Data)
 
     //数据
     double saveData;
-    saveData = Data.P3.first;
-    *in<<QString::number(saveData,'f',4);
+    saveData = Data.Fp1.first;
+    *in << QString::number(saveData, 'f', 4);
+
+    saveData = Data.Fp2.first;
+    *in << QString::number(saveData, 'f', 4);
 
     saveData = Data.C3.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.F3.first;
-    *in<<","<<QString::number(saveData,'f',4);
-
-    saveData = Data.F4.first;
-    *in<<","<<QString::number(saveData,'f',4);
+    *in << "," << QString::number(saveData,'f',4);
 
     saveData = Data.C4.first;
-    *in<<","<<QString::number(saveData,'f',4);
+    *in << "," << QString::number(saveData,'f',4);
 
-    saveData = Data.P4.first;
-    *in<<","<<QString::number(saveData,'f',4);
+    saveData = Data.P7.first;
+    *in << "," << QString::number(saveData,'f',4);
 
-    saveData = Data.Cz.first;
-    *in<<","<<QString::number(saveData,'f',4);
+    saveData = Data.P8.first;
+    *in << "," << QString::number(saveData,'f',4);
 
-    saveData = Data.Pz.first;
-    *in<<","<<QString::number(saveData,'f',4);
+    saveData = Data.O1.first;
+    *in << "," << QString::number(saveData,'f',4);
 
-    *in<<"\n";
+    saveData = Data.O2.first;
+    *in << "," << QString::number(saveData,'f',4);
 
-    if(count >= 9000)
-    {
+    *in << "\n";
+
+    if(count >= 9000){
         stopRecordFile();
-        QMessageBox::about(parentWidget(),"DSI",QString("Finish %1!").arg(ui->comboBox->currentText()));
+        QMessageBox::about(parentWidget(),"Cyton",QString("Finish %1!").arg(ui->comboBox->currentText()));
     }
 }
 
 //开始记录
-void saveEEG::startRecordFile()
-{
+void saveEEG::startRecordFile(){
     //输入是否为空
-    if(ui->lineEdit->text().isEmpty())
-    {
-        QMessageBox::about(parentWidget(),"DSI","LineEdit enter null!");
+    if(ui->lineEdit->text().isEmpty()){
+        QMessageBox::about(parentWidget(),"Cyton","LineEdit enter null!");
         return;
     }
     //判断文件是否存在
     QString csvFilePath = QString("%1/train/%2_%3.csv").arg(QCoreApplication::applicationDirPath()).arg(ui->lineEdit->text()).arg(ui->comboBox->currentText());
     if(QFile::exists(csvFilePath)){
-        QMessageBox::about(parentWidget(),"DSI","File already exits!");
+        QMessageBox::about(parentWidget(),"Cyton","File already exits!");
         return;
     }
     //创建文件并打开
     csvFile->setFileName(csvFilePath);
-    if(!csvFile->open(QIODevice::WriteOnly))
-    {
-        QMessageBox::about(parentWidget(),"DSI","File create fail!");
+    if(!csvFile->open(QIODevice::WriteOnly)){
+        QMessageBox::about(parentWidget(),"Cyton","File create fail!");
         return;
     }
     //定义输出流
@@ -105,21 +100,18 @@ void saveEEG::startRecordFile()
 }
 
 //记录表头
-void saveEEG::recordHeadSlots()
-{
-    *in<<"Reference"<<","<<saveReference<<"\n";
-    *in<<"Time";
-    for(int i = 0;i<signalTemp.size()-3;i++)
-    {
+void saveEEG::recordHeadSlots(){
+    *in << "Reference" << "," << saveReference << "\n";
+    *in << "Time";
+    for(int i = 0; i < signalTemp.size() - 3; i++){
         QString temp = signalTemp.at(i);
-        *in<<","<<temp;
+        *in << "," << temp;
     }
-    *in<<"\n";
+    *in << "\n";
 }
 
 //停止记录
-void saveEEG::stopRecordFile()
-{
+void saveEEG::stopRecordFile(){
     //告诉线程停止记录
     emit isTimeToRecord(false);
     //关闭文件
@@ -131,18 +123,15 @@ void saveEEG::stopRecordFile()
 }
 
 //改变开始按键状态
-void saveEEG::startRecordButton(bool flag)
-{
+void saveEEG::startRecordButton(bool flag){
     ui->startRecordButton->setEnabled(flag);
 }
 
 //改变停止按键状态
-void saveEEG::stopRecordButton(bool flag)
-{
+void saveEEG::stopRecordButton(bool flag){
     ui->stopRecordButton->setEnabled(flag);
 }
 
-QString saveEEG::lineeditdata()
-{
+QString saveEEG::lineeditdata(){
     return ui->lineEdit->text();
 }

@@ -6,7 +6,6 @@ ThirdParty/*/share
 ### Qt template
 # User-specific stuff:
 *.pro.user
-*.user
 ### XilinxISE template
 # intermediate build files
 *.bgn
