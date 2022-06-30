@@ -1,6 +1,10 @@
 #ifndef OPENBCI_DATAFORM_H
 #define OPENBCI_DATAFORM_H
 
+#include <QString>
+
+#include <utility>
+
 #define C3_POWER_SPECTRA_DIRCT_METHOD 1
 #define C4_POWER_SPECTRA_DIRCT_METHOD 2
 #define FFTW_DATA_SIZE 300
@@ -10,10 +14,17 @@
 #define IMAGE_JUICE 2.5
 #define MAX_FREQUENCY 13
 #define MIN_FREQUENCY 8
+#define WINDOW_LENTH 2
 
-#include <QString>
+#define MI_LEFT 0
+#define MI_RIGHT 1
+#define MI_IDLE 2
 
-#include <utility>
+#define STAND_MODE 1
+#define MI_MODE_Left 9
+#define MI_MODE_Right 10
+
+typedef int EEG_STATE;
 
 namespace ehdu{
 
@@ -55,6 +66,7 @@ struct ChannelSignal{
     }
     ChannelData Fp1, Fp2, C3, C4, P7, P8, O1, O2;
     int channelNum;
+    bool MI_SSVEP;
 };
 
 };

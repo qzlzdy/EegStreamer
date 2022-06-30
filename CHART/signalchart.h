@@ -1,9 +1,8 @@
 #ifndef SIGNALCHART_H
 #define SIGNALCHART_H
 
-#include <QWidget>
-
 #include <mutex>
+#include <QWidget>
 
 #include "CHART/qcustomplot.h"
 #include "OpenBCI/Dataform.h"
@@ -20,10 +19,6 @@ public:
     void chartInit();
 public slots:
     void chartAddData(ehdu::ChannelSignal data);
-private slots:
-    void mousePress();
-    void mouseWheel();
-    void selectionChanged();
 private:
     QList<QString> paintSignals;
     Ui::signalChart *ui;
@@ -36,6 +31,10 @@ private:
     QCPGraph *O1;
     QCPGraph *O2;
     double xAxisNum;
+private slots:
+    void mousePress();
+    void mouseWheel();
+    void selectionChanged();
 };
 
 #endif // SIGNALCHART_H

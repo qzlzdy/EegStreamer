@@ -9,36 +9,52 @@
 #include <QThread>
 #include <QVector>
 #include <QVideoWidget>
-#include <QtConcurrent/QtConcurrent>
-#include "deprecated/qmediaplaylist.h"
-#include "deprecated/playercontrols.h"
 
 #include "CCA/me_CCA.h"
 #include "CHART/signalchart.h"
 #include "CHART/impedancechart.h"
+#include "deprecated/qmediaplaylist.h"
+#include "deprecated/playercontrols.h"
 #include "OFFLINE/saveeeg.h"
+#include "OpenBCI/CspTrain.h"
 #include "OpenBCI/Cyton.h"
+#include "OpenBCI/CytonFftw.h"
 #include "PARADIGM/paradigm.h"
 #include "USART/rehabilitativeusart.h"
 
-namespace Ui {
-class Dialog;
-}
+class StateCommand;
 
-class Dialog : public QDialog
-{
+QT_BEGIN_NAMESPACE
+namespace Ui { class Dialog; }
+QT_END_NAMESPACE
+
+class Dialog: public QDialog{
     Q_OBJECT
-
 public:
-    explicit Dialog(QWidget *parent = 0);
+    explicit Dialog(QWidget *parent = nullptr);
     ~Dialog();
-
+public slots:
+    void changeMode(const int &data);
+    void cytonStart();
+    void cytonStop();
+    void fftwStart();//打开FFTW
+    void fftwStop();//关闭FFTW
+    void printToLable(QString data);
+    void startVideoLeft();
+    void startVideoRight();
+    void toMI();
+    void toSSVEP();
+    void threadC1();
+    void threadC2();
 private:
+    void connetSlots();//槽定义
+    void initialize();//初始化
+    void loadQssSlot(QString name);//读取QSS
     Ui::Dialog *ui;//ui
     SignalChart *chartWidght;//chart
     impedancechart *impedanceWidght;//imp
-    ehdu::Cyton *dataRec;//DSI
-//    DSI_FFTW *dsiFFtWDataHandle;//fftw
+    ehdu::Cyton *dataRec;
+    ehdu::CytonFftw *cytonFftwDataHandler;//fftw
     saveEEG *recordWidght;//record
     rehabilitativeUsart *sendPort;//usart
     QThread *portThread;//thread
@@ -61,35 +77,13 @@ private:
     QVideoWidget *videoWidget;
     QMediaPlaylist *medialist;
 
-    //QTimer *waitChange;
-
-//    class State_Command *fs_State;
+    StateCommand *fs_State;
 
     QPushButton* startTrainButton;
     QComboBox *trainBox;
     QHBoxLayout *newLayout;
 
-//    CSP_Train *CSPTrain;
-
-private:
-    void initSlot();//初始化
-    void connetSlot();//槽定义
-    void loadQssSlot(QString name);//读取QSS
-
-public slots:
-    void cytonStop();//关闭DSI
-    void cytonStart();//打开DSI
-    void fftwStop();//关闭FFTW
-    void fftwStart();//打开FFTW
-    void startVideoLeft();
-    void startVideoRight();
-    void printToLable(QString data);
-    void toSSVEP();
-    void toMI();
-    void threadC1();
-    void threadC2();
-
-    void changeMode(const int &data);
+    CspTrain *cspTrain;
 };
 
 #endif // DIALOG_H

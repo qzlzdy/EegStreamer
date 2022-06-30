@@ -3,6 +3,7 @@ ThirdParty/src
 ThirdParty/*/lib
 ThirdParty/*/bin
 ThirdParty/*/share
+*.avi
 ### Qt template
 # User-specific stuff:
 *.pro.user

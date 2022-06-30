@@ -1,12 +1,14 @@
 #include "dialog.h"
 #include "ui_dialog.h"
 
+#include <QMetaType>
+
+#include "OpenBCI/StateCommand.h"
+
 using namespace ehdu;
 
 Dialog::Dialog(QWidget *parent): QDialog(parent), ui(new Ui::Dialog){
     ui->setupUi(this);
-    //去掉标题栏
-//    this->setWindowFlags(Qt::CustomizeWindowHint);
     //声明信号变量channelSignal
     qRegisterMetaType<ChannelSignal>("ChannelSignal");
     //加载QSS
@@ -14,16 +16,16 @@ Dialog::Dialog(QWidget *parent): QDialog(parent), ui(new Ui::Dialog){
     //初始化对象
     chartWidght = nullptr;
     impedanceWidght = nullptr;
-//    dsiFFtWDataHandle = nullptr;
+    cytonFftwDataHandler = nullptr;
     recordWidght = nullptr;
     sendPort = nullptr;
     portThread = nullptr;
     parad = nullptr;
-//    CSPTrain = nullptr;
+    cspTrain = nullptr;
 
-    initSlot();
+    initialize();
     //初始化信号与槽
-    connetSlot();
+    connetSlots();
 }
 
 Dialog::~Dialog(){
@@ -35,13 +37,13 @@ Dialog::~Dialog(){
     delete impedanceWidght;
     delete recordWidght;
     delete sendPort;
-//    if(dsiFFtWDataHandle != nullptr){
-//        delete dsiFFtWDataHandle;
-//    }
+    if(cytonFftwDataHandler != nullptr){
+        delete cytonFftwDataHandler;
+    }
     delete startButton;
     delete stopButton;
     delete trainBox;
-//    delete CSPTrain;
+    delete cspTrain;
     delete startTrainButton;
     delete fftwStartButton;
     delete fftwStopButton;
@@ -57,9 +59,112 @@ Dialog::~Dialog(){
     delete ui;
 }
 
+//信号与曹连接
+void Dialog::connetSlots()
+{
+    //chart数据更新
+    connect(dataRec, &Cyton::bufferDataSignal,
+            chartWidght, &SignalChart::chartAddData);
+    //impedance数据更新
+//    connect(dataRec,&Cyton::fixedTimeSignal,impedanceWidght,&impedancechart::impedanceQualitySlot);
+    //reset
+    connect(impedanceWidght, &impedancechart::resetSignals,
+            dataRec, &Cyton::reset);
+    //start
+    connect(startButton, &QPushButton::clicked, this, &Dialog::cytonStart);
+    //stop
+    connect(stopButton, &QPushButton::clicked, this, &Dialog::cytonStop);
+    //start FFTW
+    connect(fftwStartButton, &QPushButton::clicked, this, &Dialog::fftwStart);
+    //stop FFTW
+    connect(fftwStopButton, &QPushButton::clicked, this, &Dialog::fftwStop);
+    //start/stop record
+    connect(recordWidght, &saveEEG::isTimeToRecord, this, [&](bool flag){
+        if(flag){
+            connect(dataRec, &Cyton::offlineDataSignal,
+                    recordWidght, &saveEEG::recordEEGslots);
+        }
+        else{
+            disconnect(dataRec, &Cyton::offlineDataSignal,
+                       recordWidght, &saveEEG::recordEEGslots);
+        }
+        dataRec->recordSwitchFlag = flag;
+    });
+    connect(searchButton, &QPushButton::clicked, this, [&](){
+        //find com
+        if(searchButton->text() == "Search Port"){
+            searchButton->setDisabled(true);
+            sendPort->findUsingPort();
+        //open com
+        }
+        else if(searchButton->text() == "Connect"){
+            sendPort->connectComPort(portBox->currentText());
+            searchButton->setText("Disconnect");
+        //close com
+        }
+        else if(searchButton->text() == "Disconnect"){
+            sendPort->closePort();
+            searchButton->setText("Search Port");
+        }
+    });
+    //add com
+    connect(sendPort, &rehabilitativeUsart::usingComPortSignal,
+            this, [&](QVector<QString> data){
+        for(QString &portName: data){
+            portBox->clear();
+            portBox->addItem(portName);
+        }
+        portBox->addItem("/dev/tty");
+        searchButton->setText("Connect");
+        searchButton->setDisabled(false);
+    });
+    //video
+    connect(ui->rightButton, SIGNAL(clicked()), this, SLOT(startVideoRight()));
+    connect(ui->leftButton, SIGNAL(clicked()), this, SLOT(startVideoLeft()));
+
+    connect(trainBox, &QComboBox::currentTextChanged, this, [&](QString data){
+        if(data=="CSP and CCA.nomarl"){
+            startTrainButton->setEnabled(true);
+        }
+        else if(data=="CSP and CCA.SW"){
+            startTrainButton->setEnabled(true);
+        }
+        else if(data=="CSP and KCCA.nomarl"){
+            startTrainButton->setEnabled(true);
+        }
+        else if(data=="CSP and KCCA.SW"){
+            startTrainButton->setEnabled(true);
+        }
+        else if(data=="FFTW.SW"){
+            startTrainButton->setEnabled(false);
+        }
+    });
+
+    connect(startTrainButton, &QPushButton::clicked, this, [&](){
+        startTrainButton->setEnabled(false);
+        if(cspTrain != nullptr){
+            delete cspTrain;
+        }
+        cspTrain = new CspTrain;
+
+        connect(cspTrain, &CspTrain::finishTrain,
+                this, [&](bool flag){
+            startTrainButton->setEnabled(true);
+            if(flag == 0){
+                QMessageBox::about(this, "Cyton", "Train File Open Failed!");
+            }
+            else{
+                QMessageBox::about(this, "Cyton", "Finish Train!");
+            }
+        });
+
+        cspTrain->filename = recordWidght->lineeditdata();
+        cspTrain->start();
+    });
+}
+
 //初始化对象
-void Dialog::initSlot(){
-    //DSI
+void Dialog::initialize(){
     dataRec = new Cyton(nullptr);
     if(chartWidght == nullptr || impedanceWidght == nullptr
                               || recordWidght == nullptr){
@@ -139,8 +244,8 @@ void Dialog::initSlot(){
     medialist=new QMediaPlaylist;
     ui->vedioLayout->addWidget(videoWidget);
     player->setVideoOutput(videoWidget);
-    QString vedioPath = QString("%1%2").arg(qApp->applicationDirPath().replace("/","\\")).arg(QString("\\video\\left.avi"));
-    QString vedioPath2 = QString("%1%2").arg(qApp->applicationDirPath().replace("/","\\")).arg(QString("\\video\\right.avi"));
+    QString vedioPath = QString("%1%2").arg(qApp->applicationDirPath(), QString("/video/left.avi"));
+    QString vedioPath2 = QString("%1%2").arg(qApp->applicationDirPath(), QString("/video/right.avi"));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath2));
 //    player->setPlaylist(medialist);
@@ -167,121 +272,8 @@ void Dialog::initSlot(){
     fanshiLayout->setContentsMargins(0,0,0,0);
     ui->paradigm->setLayout(fanshiLayout);
 
-//    fs_State = nullptr;
-    //waitChange = new QTimer;
-    //QObject::connect(waitChange, &QTimer::timeout, [&](){ui->tabWidget->setCurrentIndex(0); });
-    QObject::connect(parad, &Paradigm::closeSignal, [&](){ fftwStop(); });
-
-}
-
-//信号与曹连接
-void Dialog::connetSlot()
-{
-    //chart数据更新
-    QObject::connect(dataRec,&Cyton::bufferDataSignal,chartWidght,&SignalChart::chartAddData);
-    //impedance数据更新
-//    QObject::connect(dataRec,&Cyton::fixedTimeSignal,impedanceWidght,&impedancechart::impedanceQualitySlot);
-    //reset
-    QObject::connect(impedanceWidght,&impedancechart::resetSignals,dataRec,&Cyton::resetSlots);
-    //start DSI
-    QObject::connect(startButton,&QPushButton::clicked,this,&Dialog::cytonStart);
-    //stop DSI
-    QObject::connect(stopButton,&QPushButton::clicked,this,&Dialog::cytonStop);
-    //start FFTW
-    QObject::connect(fftwStartButton,&QPushButton::clicked,this,&Dialog::fftwStart);
-    //stop FFTW
-    QObject::connect(fftwStopButton,&QPushButton::clicked,this,&Dialog::fftwStop);
-    //start/stop record
-    QObject::connect(recordWidght, &saveEEG::isTimeToRecord,
-                     this, [&](bool flag){
-        if(flag == true)
-        {
-            QObject::connect(dataRec,&Cyton::offLineDataSignal,recordWidght,&saveEEG::recordEEGslots);
-        }else{
-            QObject::disconnect(dataRec,&Cyton::offLineDataSignal,recordWidght,&saveEEG::recordEEGslots);
-        }
-        dataRec->recordSwitchFlag = flag;
-    });    
-    QObject::connect(searchButton, &QPushButton::clicked,this, [&](){
-        //find com
-        if(searchButton->text() == "Search Port"){
-            searchButton->setDisabled(true);
-            sendPort->findUsingPort();
-        //open com
-        }
-        else if(searchButton->text() == "Connect"){
-            sendPort->connectComPort(portBox->currentText());
-            searchButton->setText("Disconnect");
-        //close com
-        }
-        else if(searchButton->text() == "Disconnect"){
-            sendPort->closePort();
-            searchButton->setText("Search Port");
-        }
-    });
-    //add com
-    QObject::connect(sendPort, &rehabilitativeUsart::usingComPortSignal,
-                     this, [&](QVector<QString> data){
-        foreach(QString portName, data){
-            portBox->clear();
-            portBox->addItem(portName);
-        }
-        portBox->addItem("COM10");
-        portBox->addItem("COM11");
-        portBox->addItem("COM12");
-        portBox->addItem("COM13");
-        portBox->addItem("COM2");
-        searchButton->setText("Connect");
-        searchButton->setDisabled(false);
-    });
-    //delete com thread
-    //QObject::connect(portThread, &QThread::finished, sendPort, &QObject::deleteLater);
-    //video
-    QObject::connect(ui->rightButton, SIGNAL(clicked()),
-                     this, SLOT(startVideoRight()));
-    QObject::connect(ui->leftButton, SIGNAL(clicked()),
-                     this, SLOT(startVideoLeft()));
-
-    QObject::connect(trainBox, &QComboBox::currentTextChanged,
-                     this, [&](QString data){
-        if(data=="CSP and CCA.nomarl"){
-            startTrainButton->setEnabled(true);
-        }
-        else if(data=="CSP and CCA.SW"){
-            startTrainButton->setEnabled(true);
-        }
-        else if(data=="CSP and KCCA.nomarl"){
-            startTrainButton->setEnabled(true);
-        }
-        else if(data=="CSP and KCCA.SW"){
-            startTrainButton->setEnabled(true);
-        }
-        else if(data=="FFTW.SW"){
-            startTrainButton->setEnabled(false);
-        }
-    });
-
-    QObject::connect(startTrainButton, &QPushButton::clicked, this, [&](){
-        startTrainButton->setEnabled(false);
-//        if(CSPTrain!=nullptr){
-//            delete CSPTrain;
-//        }
-//        CSPTrain = new CSP_Train;
-
-//        QObject::connect(CSPTrain, &CSP_Train::finish_train,
-//                         this, [&](bool flag){
-//            startTrainButton->setEnabled(true);
-//            if(flag==0){
-//                QMessageBox::about(this,"DSI","Train File Open Failed!");
-//            }
-//            else{
-//                QMessageBox::about(this,"DSI","Finish Train!");
-//            }
-//        });
-
-//        CSPTrain->fname = recordWidght->lineeditdata();
-//        CSPTrain->start();
-    });
+    fs_State = nullptr;
+    connect(parad, &Paradigm::closeSignal, this, [&](){fftwStop();});
 }
 
 //加载QSS
@@ -292,20 +284,19 @@ void Dialog::loadQssSlot(QString name){
     qApp->setStyleSheet(qss);
 }
 
-//打开DSI
 void Dialog::cytonStart(){
-    //DSI
     if(dataRec == nullptr){
         dataRec = new Cyton(nullptr);
-        QObject::connect(dataRec, &Cyton::bufferDataSignal,
-                         chartWidght, &SignalChart::chartAddData);
-//        QObject::connect(dataRec, &Cyton::fixedTimeSignal,
-//                         impedanceWidght, &impedancechart::impedanceQualitySlot);
-        QObject::connect(impedanceWidght,&impedancechart::resetSignals,dataRec,&Cyton::resetSlots);
+        connect(dataRec, &Cyton::bufferDataSignal,
+                chartWidght, &SignalChart::chartAddData);
+//        connect(dataRec, &Cyton::fixedTimeSignal,
+//                impedanceWidght, &impedancechart::impedanceQualitySlot);
+        connect(impedanceWidght, &impedancechart::resetSignals,
+                dataRec, &Cyton::reset);
     }
-    if(!dataRec->BufferingStart()){
-        dataRec->ImpedanceSlots();
-        dataRec->start();
+    try{
+        dataRec->startStream();
+//        dataRec->start();
         startButton->setEnabled(false);
         stopButton->setEnabled(true);
         fftwStartButton->setEnabled(true);
@@ -318,12 +309,13 @@ void Dialog::cytonStart(){
         }
         trainBox->setEnabled(true);
     }
-    else{
-        QMessageBox::about(this, "Cyton", "Error connect to Cyton!");
+    catch(const BrainFlowException &err){
+        BoardShim::log_message(static_cast<int>(LogLevels::LEVEL_ERROR),
+                               err.what());
+        QMessageBox::about(this, "Cyton", err.what());
     }
 }
 
-//关闭DSI
 void Dialog::cytonStop(){
     startButton->setEnabled(true);
     stopButton->setEnabled(false);
@@ -333,15 +325,14 @@ void Dialog::cytonStop(){
     recordWidght->stopRecordButton(false);
     startTrainButton->setEnabled(false);
     trainBox->setEnabled(false);
-//    if(dsiFFtWDataHandle != nullptr){
-//        dsiFFtWDataHandle->readingFlag = false;
-//        dataRec->fftwSwitchFlag = false;
-//        dsiFFtWDataHandle->deleteLater();
-//        dsiFFtWDataHandle = nullptr;
-//    }
+    if(cytonFftwDataHandler != nullptr){
+        cytonFftwDataHandler->readingFlag = false;
+        dataRec->fftwSwitchFlag = false;
+        cytonFftwDataHandler->deleteLater();
+        cytonFftwDataHandler = nullptr;
+    }
     //终止线程，关闭DSI
-    delete dataRec;
-    dataRec = nullptr;
+    dataRec->stopStream();
     //imp复原
     ChannelImpedance impData;
     impedanceWidght->impedanceQualitySlot(impData);
@@ -350,88 +341,91 @@ void Dialog::cytonStop(){
 //打开FFTW===================算法入口===================
 void Dialog::fftwStart(){
     if(trainBox->currentText() == "CSP and CCA.nomarl"){
-//        if(CSPTrain==nullptr){
-//            QMessageBox::about(this,"Cyton","Train First!");
-//            return;
-//        }
-//        dsiFFtWDataHandle = new DSI_FFTW(new CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-//                                                                    CSPTrain->_W2, CSPTrain->_sample2,
-//                                                                    CSPTrain->_W3, CSPTrain->_sample3));
-//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-//        dsiFFtWDataHandle->recordInit();
+        if(cspTrain == nullptr){
+            QMessageBox::about(this, "Cyton", "Train First!");
+            return;
+        }
+        cytonFftwDataHandler = new CytonFftw(new CspCcaAlgorithmSwitch(
+            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
+            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
+        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->recordInit();
     }
     else if(trainBox->currentText() == "CSP and CCA.SW"){
-//        if(CSPTrain==nullptr){
-            QMessageBox::about(this, "Cyton","Train First!");
+        if(cspTrain == nullptr){
+            QMessageBox::about(this, "Cyton", "Train First!");
             return;
-//        }
-//        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_CCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-//                                                                       CSPTrain->_W2, CSPTrain->_sample2,
-//                                                                       CSPTrain->_W3, CSPTrain->_sample3));
-//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-//        dsiFFtWDataHandle->recordInit();
+        }
+        cytonFftwDataHandler = new CytonFftw(new SwCspCcaAlgorithmSwitch(
+            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
+            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
+        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->recordInit();
 
         /**********************以下为新增**********************/
     }
     else if(trainBox->currentText()=="CSP and KCCA.nomarl"){
-//        if(CSPTrain == nullptr){
-            QMessageBox::about(this,"Cyton","Train First!");
+        if(cspTrain == nullptr){
+            QMessageBox::about(this, "Cyton", "Train First!");
             return;
-//        }
-//        dsiFFtWDataHandle = new DSI_FFTW(new CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-//                                                                    CSPTrain->_W2, CSPTrain->_sample2,
-//                                                                    CSPTrain->_W3, CSPTrain->_sample3));
-//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-//        dsiFFtWDataHandle->recordInit();
+        }
+        cytonFftwDataHandler = new CytonFftw(new CspKccaAlgorithmSwitch(
+            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
+            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
+        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->recordInit();
     }
     else if(trainBox->currentText()=="CSP and KCCA.SW"){
-//        if(CSPTrain==nullptr){
-            QMessageBox::about(this, "Cyton","Train First!");
+        if(cspTrain == nullptr){
+            QMessageBox::about(this, "Cyton", "Train First!");
             return;
-//        }
-//        dsiFFtWDataHandle = new DSI_FFTW(new SW_CSP_KCCA_AlorithmSwitch(CSPTrain->_W1, CSPTrain->_sample1,
-//                                                                       CSPTrain->_W2, CSPTrain->_sample2,
-//                                                                       CSPTrain->_W3, CSPTrain->_sample3));
-//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-//        dsiFFtWDataHandle->recordInit();
+        }
+        cytonFftwDataHandler = new CytonFftw(new SwCspKccaAlgorithmSwitch(
+            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
+            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
+        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->recordInit();
         /**********************以上为新增**********************/
 
     }
     else if(trainBox->currentText() == "FFTW.SW"){
-//        dsiFFtWDataHandle = new DSI_FFTW(new FFTW_AlorithmSwitch());
-//        dsiFFtWDataHandle->useName = recordWidght->lineeditdata();
-//        dsiFFtWDataHandle->recordInit();
+        cytonFftwDataHandler = new CytonFftw(new FftwAlgorithmSwitch());
+        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->recordInit();
     }
 
-//    dsiFFtWDataHandle->uiState = 0;
+    cytonFftwDataHandler->uiState = 0;
     dataRec->fftwSwitchFlag = true;
-//    dsiFFtWDataHandle->start();
+    cytonFftwDataHandler->start();
     fftwStartButton->setEnabled(false);
     fftwStopButton->setEnabled(true);
     startTrainButton->setEnabled(false);
     trainBox->setEnabled(false);
 
-//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C3LeftSignal,this,[&](){ changeMode(MI_LEFT); });
-//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::C4RightSignal,this,[&](){ changeMode(MI_RIGHT); });
-//    QObject::connect(dsiFFtWDataHandle,&DSI_FFTW::IdleSignal,this,[&](){ changeMode(MI_IDLE); });
+    connect(cytonFftwDataHandler, &CytonFftw::leftSignal,
+            this, [&](){changeMode(MI_LEFT);});
+    connect(cytonFftwDataHandler, &CytonFftw::rightSignal,
+            this, [&](){changeMode(MI_RIGHT);});
+    connect(cytonFftwDataHandler, &CytonFftw::idleSignal,
+            this, [&](){changeMode(MI_IDLE);});
     ui->tabWidget->setCurrentIndex(2);
-//    fs_State = new Stand_Mode;
+    fs_State = new StandMode;
     parad->StandMode();
 }
 
 //关闭FFTW
 void Dialog::fftwStop(){
-//    if(fs_State == nullptr){
-//        return;
-//    }
+    if(fs_State == nullptr){
+        return;
+    }
 
-//    delete fs_State;
-//    fs_State = nullptr;
+    delete fs_State;
+    fs_State = nullptr;
 
-//    dsiFFtWDataHandle->readingFlag = false;
+    cytonFftwDataHandler->readingFlag = false;
     dataRec->fftwSwitchFlag = false;
-//    dsiFFtWDataHandle->deleteLater();
-//    dsiFFtWDataHandle = nullptr;
+    cytonFftwDataHandler->deleteLater();
+    cytonFftwDataHandler = nullptr;
     fftwStartButton->setEnabled(true);
     fftwStopButton->setEnabled(false);
     if(trainBox->currentText()!="FFTW.SW"){
@@ -467,7 +461,6 @@ void Dialog::toSSVEP(){
 void Dialog::toMI(){
     ui->label->clear();
     ui->tabWidget->setCurrentIndex(1);
-    //waitChange->start(3000);
 }
 
 //范式状态切换
@@ -481,17 +474,16 @@ void Dialog::toMI(){
  * ******/
 //要有个按钮开关——范式（这两个按钮在STAND界面）
 //初始化——Stand状态——开SSVEP
-void Dialog::changeMode(const int& data){
-//    if(fs_State != nullptr){
-//        State_Command *tmp = fs_State->Operation(data, sendPort, parad, this);
-//        if(tmp != nullptr){
-//            delete fs_State;
-//            fs_State = tmp;
-//        }
+void Dialog::changeMode(const int &data){
+    if(fs_State != nullptr){
+        StateCommand *tmp = fs_State->Operation(data, sendPort, parad, this);
+        if(tmp != nullptr){
+            delete fs_State;
+            fs_State = tmp;
+        }
 
-//        dsiFFtWDataHandle->uiState = fs_State->nowState;
-        //dsiFFtWDataHandle->uiState = 1;
-//    }
+        cytonFftwDataHandler->uiState = fs_State->nowState;
+    }
 }
 
 //QTimer不能由另外的thread启动或者关闭，所以加下面两个函数

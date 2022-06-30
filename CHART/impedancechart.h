@@ -14,7 +14,7 @@ QT_END_NAMESPACE
 class impedancechart: public QWidget{
     Q_OBJECT
 public:
-    explicit impedancechart(QWidget *parent = 0);
+    explicit impedancechart(QWidget *parent = nullptr);
     ~impedancechart();
 public slots:
     void impedanceQualitySlot(ehdu::ChannelImpedance impData);

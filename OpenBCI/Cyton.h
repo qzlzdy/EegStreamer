@@ -6,6 +6,7 @@
 #include <QThread>
 
 #include "Dataform.h"
+#include "board_shim.h"
 
 namespace ehdu{
 
@@ -14,17 +15,26 @@ class Cyton final: public QThread{
 public:
     Cyton(QObject *parent = nullptr);
     ~Cyton();
-    // FIXME
-    int BufferingStart();
-    int ImpedanceSlots();
+    void startStream();
+    void stopStream();
     QList<QString> chooseChannelString;
     bool fftwSwitchFlag;
+    bool readingFlag;
     bool recordSwitchFlag;
 public slots:
-    void resetSlots();
+    void reset();
 signals:
-    void offLineDataSignal(ChannelSignal);
-    void bufferDataSignal(ChannelSignal);
+    void offlineDataSignal(ehdu::ChannelSignal data);
+    void bufferDataSignal(ehdu::ChannelSignal data);
+//    void fixedTimeSignal(ehdu::ChannelImpedance data);
+protected:
+    void run() override;
+private:
+    void dataStore(ChannelSignal *data, QString channelName,
+                   double channelData);
+    void readData();
+    BoardShim *board;
+    ChannelSignal chartSignal;
 };
 
 };
