@@ -1,6 +1,7 @@
 #ifndef ALGORITHMSWITCH_H
 #define ALGORITHMSWITCH_H
 
+#include <array>
 #include <vector>
 #include <QDebug>
 #include <QObject>
@@ -20,109 +21,89 @@ public:
     AlgorithmSwitch() = default;
     virtual ~AlgorithmSwitch() = default;
     virtual int step(ChannelSignal &getSignalDataAdress) = 0;
-public:
     std::vector<ChannelSignal> rawData;
 };
 
-//CSP_CCA
-class CspCcaAlgorithmSwitch: public AlgorithmSwitch{
+class SlidingWindow{
 public:
-    CspCcaAlgorithmSwitch(std::vector<double> W1, std::vector<double> sample1,
-                         std::vector<double> W2, std::vector<double> sample2,
-                         std::vector<double> W3, std::vector<double> sample3);
-    virtual ~CspCcaAlgorithmSwitch() override = default;
+    SlidingWindow() = default;
+    virtual ~SlidingWindow() = default;
+protected:
+    bool firstRecFlag = false;
+    std::array<double, 240> tempInputData;
+};
+
+class CommonSpatialPattern{
+public:
+    CommonSpatialPattern(
+        const std::vector<double> &W1, const std::vector<double> &sample1,
+        const std::vector<double> &W2, const std::vector<double> &sample2,
+        const std::vector<double> &W3, const std::vector<double> &sample3);
+    virtual ~CommonSpatialPattern() = default;
+protected:
+    int idleCount = 0;
+    int miCount = 0;
+    std::vector<double> W1;//126
+    std::vector<double> W2;
+    std::vector<double> W3;
+    std::vector<double> sample1;//180
+    std::vector<double> sample2;
+    std::vector<double> sample3;
+};
+
+//CSP_CCA
+class CspCca: public AlgorithmSwitch, public CommonSpatialPattern{
+public:
+    using CommonSpatialPattern::CommonSpatialPattern;
+    virtual ~CspCca() override = default;
     virtual int step(ChannelSignal &getSignalDataAdress) override;
-private:
-    int countIdle;
-    int mi_count;
-    std::vector<double> _W1;//126
-    std::vector<double> _W2;
-    std::vector<double> _W3;
-    std::vector<double> _sample1;//180
-    std::vector<double> _sample2;
-    std::vector<double> _sample3;
 };
 
 
 //SW_FFTW
-class FftwAlgorithmSwitch: public AlgorithmSwitch{
+class Fftw: public AlgorithmSwitch{
 public:
-    FftwAlgorithmSwitch();
-    virtual ~FftwAlgorithmSwitch() override;
+    Fftw();
+    virtual ~Fftw() override;
     virtual int step(ChannelSignal &getSignalDataAdress) override;
 private:
-    int C3flag;
-    int C4flag;
-    int Idlefalsg;
-    bool firstRecviceDataFlag;//是否第一次接受数据
-    motorImagery *motorImageryObject;
-    int fftwStoreSize;
+    int fftwStoreSize = -1;
+    bool firstRecvice = false;//是否第一次接受数据
+    int C3flag = 0;
+    int C4flag = 0;
+    int Idleflag = 0;
+    motorImagery *motorImageryObject = nullptr;
     std::vector<std::vector<double>> windowTranslationData;
 };
 
 
 //SW_CSP_CCA
-class SwCspCcaAlgorithmSwitch: public AlgorithmSwitch{
+class SwCspCca: public AlgorithmSwitch, public SlidingWindow,
+public CommonSpatialPattern{
 public:
-    SwCspCcaAlgorithmSwitch(std::vector<double> W1, std::vector<double> sample1,
-                           std::vector<double> W2, std::vector<double> sample2,
-                           std::vector<double> W3, std::vector<double> sample3);
-    virtual ~SwCspCcaAlgorithmSwitch() override = default;
+    using CommonSpatialPattern::CommonSpatialPattern;
+    virtual ~SwCspCca() override = default;
     virtual int step(ChannelSignal &getSignalDataAdress) override;
-private:
-    double tempInputData[6300];
-    bool firstRecFlag;
-    int countIdle;
-    int mi_count;
-    std::vector<double> _W1;//126
-    std::vector<double> _W2;
-    std::vector<double> _W3;
-    std::vector<double> _sample1;//180
-    std::vector<double> _sample2;
-    std::vector<double> _sample3;
 };
 
 
 /*以下为新增2020-8-21 19:37:20*/
 
 //CSP_KCCA
-class CspKccaAlgorithmSwitch: public AlgorithmSwitch{
+class CspKcca: public AlgorithmSwitch, public CommonSpatialPattern{
 public:
-    CspKccaAlgorithmSwitch(std::vector<double> W1, std::vector<double> sample1,
-                          std::vector<double> W2, std::vector<double> sample2,
-                          std::vector<double> W3, std::vector<double> sample3);
-    virtual ~CspKccaAlgorithmSwitch() override = default;
+    using CommonSpatialPattern::CommonSpatialPattern;
+    virtual ~CspKcca() override = default;
     virtual int step(ChannelSignal &getSignalDataAdress) override;
-private:
-    int countIdle;
-    int mi_count;
-    std::vector<double> _W1;//126
-    std::vector<double> _W2;
-    std::vector<double> _W3;
-    std::vector<double> _sample1;//180
-    std::vector<double> _sample2;
-    std::vector<double> _sample3;
 };
 
 //SW_CSP_KCCA
-class SwCspKccaAlgorithmSwitch: public AlgorithmSwitch{
+class SwCspKcca: public AlgorithmSwitch, public SlidingWindow,
+public CommonSpatialPattern{
 public:
-    SwCspKccaAlgorithmSwitch(std::vector<double> W1, std::vector<double> sample1,
-                            std::vector<double> W2, std::vector<double> sample2,
-                            std::vector<double> W3, std::vector<double> sample3);
-    virtual ~SwCspKccaAlgorithmSwitch() override = default;
+    using CommonSpatialPattern::CommonSpatialPattern;
+    virtual ~SwCspKcca() override = default;
     virtual int step(ChannelSignal &getSignalDataAdress) override;
-private:
-    double tempInputData[6300];
-    bool firstRecFlag;
-    int countIdle;
-    int mi_count;
-    std::vector<double> _W1;//126
-    std::vector<double> _W2;
-    std::vector<double> _W3;
-    std::vector<double> _sample1;//180
-    std::vector<double> _sample2;
-    std::vector<double> _sample3;
 };
 
 }

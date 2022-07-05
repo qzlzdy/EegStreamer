@@ -3,12 +3,12 @@
 using namespace ehdu;
 
 CspTrain::CspTrain(QObject *parent): QThread(parent){
-    _W1.resize(126);
-    _W2.resize(126);
-    _W3.resize(126);
-    _sample1.resize(180);
-    _sample2.resize(180);
-    _sample3.resize(180);
+    W1.resize(126);
+    W2.resize(126);
+    W3.resize(126);
+    sample1.resize(180);
+    sample2.resize(180);
+    sample3.resize(180);
     csvfile = new QFile;
 }
 
@@ -20,7 +20,8 @@ CspTrain::~CspTrain(){
 }
 
 void CspTrain::step(QString &csvFilename){
-    //采集数据，每个类别30秒，300采样率，21通道，共18900点
+    // DSI 采集数据，每个类别30秒，300采样率，21通道，共18900点
+    // Cyton 30 second per class, 30 sample rate, 8 channels, total 7200
     //其实可以调用另外一个信号，也就是保存数据的！！！
     //这样就在训练的时候不需要开启FFTW的那个线程，直接接受信号保存，3步3个类别数据，最后一下button的click进行训练！！！
     //直接保存三个文件，读取训练就行
@@ -87,7 +88,8 @@ void CspTrain::step(QString &csvFilename){
     csvfile->close();
 
     //CSP训练,内部内置滤波器
-    csp_train_ovo(dataLeftRaw, dataRightRaw, dataIdleRaw, _W1, _sample1, _W2, _sample2, _W3, _sample3);
+    csp_train_ovo(dataLeftRaw, dataRightRaw, dataIdleRaw, W1, sample1,
+                  W2, sample2, W3, sample3);
     emit finishTrain(true);
 }
 

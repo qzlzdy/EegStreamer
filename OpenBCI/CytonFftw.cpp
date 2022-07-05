@@ -1,35 +1,19 @@
 #include "OpenBCI/CytonFftw.h"
 
 #include <QCoreApplication>
-#include <QMutex>
-#include <QQueue>
-#include <QWaitCondition>
 
 using namespace ehdu;
 
-//定义缓存区
-namespace{
-
-QQueue<ChannelSignal* > threadShareData;
-int queueSize = 300;
-//定义互斥锁
-QMutex *bufferMutex ;
-//定义完成量
-QWaitCondition *bufferIsEmpty;
-QWaitCondition *bufferIsFull;
-
-}
+const int CytonFftw::queueSize = 300;
 
 CytonFftw::CytonFftw(AlgorithmSwitch *as, QObject *parent): QThread(parent),
 chooseAlorithm(as){
     //定义缓存区大小
     threadShareData.reserve(queueSize);
-    readingFlag = true;
     //初始化全区动态变量
     bufferMutex = new QMutex;
     bufferIsEmpty = new QWaitCondition;
     bufferIsFull = new QWaitCondition;
-    //recordInit();
 }
 
 CytonFftw::~CytonFftw(){
@@ -42,21 +26,15 @@ CytonFftw::~CytonFftw(){
     threadShareData.clear();
     //删除动态全局变量
 
-    if(csvFile->isOpen())
+    if(csvFile->isOpen()){
         csvFile->close();
+    }
     delete csvFile;
     delete in;
-    in = nullptr;
-    csvFile = nullptr;
-
     delete bufferMutex;
     delete bufferIsEmpty;
     delete bufferIsFull;
     delete chooseAlorithm;
-    bufferMutex = nullptr;
-    bufferIsEmpty = nullptr;
-    bufferIsFull = nullptr;
-    chooseAlorithm = nullptr;
 }
 
 void CytonFftw::recordInit(){

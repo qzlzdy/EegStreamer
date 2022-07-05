@@ -2,8 +2,11 @@
 #define CYTONFFTW_H
 
 #include <QFile>
+#include <QMutex>
+#include <QQueue>
 #include <QString>
 #include <QThread>
+#include <QWaitCondition>
 
 #include "OpenBCI/AlgorithmSwitch.h"
 
@@ -15,7 +18,7 @@ public:
     explicit CytonFftw(AlgorithmSwitch *as, QObject *parent = nullptr);
     ~CytonFftw();
     void recordInit();
-    bool readingFlag;//终止进程的标志
+    bool readingFlag = true;//终止进程的标志
     bool uiState;
     QString useName;
 signals:
@@ -25,10 +28,17 @@ signals:
 protected:
     void run() override;
 private:
+    static const int queueSize;
     void motorImageryUseFftw();
-    AlgorithmSwitch *chooseAlorithm;
-    QFile *csvFile;
-    QTextStream *in;
+    AlgorithmSwitch *chooseAlorithm = nullptr;
+    QFile *csvFile = nullptr;
+    QTextStream *in = nullptr;
+    QQueue<ChannelSignal *> threadShareData;
+    //定义互斥锁
+    QMutex *bufferMutex = nullptr;
+    //定义完成量
+    QWaitCondition *bufferIsEmpty = nullptr;
+    QWaitCondition *bufferIsFull = nullptr;
 };
 
 }

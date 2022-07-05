@@ -23,12 +23,12 @@ public:
     explicit CspTrain(QObject *parent = nullptr);
     ~CspTrain();
     void step(QString &csvFilename);
-    std::vector<double> _W1;//126
-    std::vector<double> _W2;
-    std::vector<double> _W3;
-    std::vector<double> _sample1;//180
-    std::vector<double> _sample2;
-    std::vector<double> _sample3;
+    std::vector<double> W1;//126
+    std::vector<double> W2;
+    std::vector<double> W3;
+    std::vector<double> sample1;//180
+    std::vector<double> sample2;
+    std::vector<double> sample3;
     QString filename;
     QFile *csvfile;
 signals:
@@ -36,9 +36,9 @@ signals:
 protected:
     void run() override;
 private:
-    double dataIdleRaw[189000];
-    double dataLeftRaw[189000];
-    double dataRightRaw[189000];
+    double dataIdleRaw[7200];
+    double dataLeftRaw[7200];
+    double dataRightRaw[7200];
 };
 
 }

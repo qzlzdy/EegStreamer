@@ -345,7 +345,7 @@ void Dialog::fftwStart(){
             QMessageBox::about(this, "Cyton", "Train First!");
             return;
         }
-        cytonFftwDataHandler = new CytonFftw(new CspCcaAlgorithmSwitch(
+        cytonFftwDataHandler = new CytonFftw(new CspCca(
             cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
             cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
         cytonFftwDataHandler->useName = recordWidght->lineeditdata();
@@ -356,7 +356,7 @@ void Dialog::fftwStart(){
             QMessageBox::about(this, "Cyton", "Train First!");
             return;
         }
-        cytonFftwDataHandler = new CytonFftw(new SwCspCcaAlgorithmSwitch(
+        cytonFftwDataHandler = new CytonFftw(new SwCspCca(
             cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
             cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
         cytonFftwDataHandler->useName = recordWidght->lineeditdata();
@@ -369,7 +369,7 @@ void Dialog::fftwStart(){
             QMessageBox::about(this, "Cyton", "Train First!");
             return;
         }
-        cytonFftwDataHandler = new CytonFftw(new CspKccaAlgorithmSwitch(
+        cytonFftwDataHandler = new CytonFftw(new CspKcca(
             cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
             cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
         cytonFftwDataHandler->useName = recordWidght->lineeditdata();
@@ -380,7 +380,7 @@ void Dialog::fftwStart(){
             QMessageBox::about(this, "Cyton", "Train First!");
             return;
         }
-        cytonFftwDataHandler = new CytonFftw(new SwCspKccaAlgorithmSwitch(
+        cytonFftwDataHandler = new CytonFftw(new SwCspKcca(
             cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
             cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
         cytonFftwDataHandler->useName = recordWidght->lineeditdata();
@@ -389,7 +389,7 @@ void Dialog::fftwStart(){
 
     }
     else if(trainBox->currentText() == "FFTW.SW"){
-        cytonFftwDataHandler = new CytonFftw(new FftwAlgorithmSwitch());
+        cytonFftwDataHandler = new CytonFftw(new Fftw());
         cytonFftwDataHandler->useName = recordWidght->lineeditdata();
         cytonFftwDataHandler->recordInit();
     }
