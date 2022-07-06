@@ -3,6 +3,7 @@
 #include "csp_train_ovo.h"
 
 #include <algorithm>
+#include <numeric>
 
 using namespace std;
 
@@ -402,7 +403,7 @@ static void eml_xgesvd(const array<double, 64> &A, array<double, 64> &U,
                 }
 
                 b_eml_xscal(7 - q, 1.0 / e[q], e, q + 2);
-                e[q + 1]++;
+                ++e[q + 1];
             }
 
             e[q] = -e[q];
@@ -558,7 +559,7 @@ static void eml_xgesvd(const array<double, 64> &A, array<double, 64> &U,
         case 1:
             f = e[m];
             e[m] = 0.0;
-            for(i = m; i + 1 >= q + 1; i--){
+            for(i = m; i + 1 >= q + 1; --i){
                 ztest0 = s[i];
                 eml_xrotg(&ztest0, &f, &ztest, &rt);
                 s[i] = ztest0;
@@ -571,7 +572,7 @@ static void eml_xgesvd(const array<double, 64> &A, array<double, 64> &U,
         case 2:
             f = e[q - 1];
             e[q - 1] = 0.0;
-            for(i = q; i + 1 <= m + 2; i++){
+            for(i = q; i + 1 <= m + 2; ++i){
                 eml_xrotg(&s[i], &f, &ztest, &rt);
                 f = -rt * e[i];
                 e[i] *= ztest;
@@ -782,10 +783,8 @@ static void eml_sort(const array<double, 8> &x, array<double, 8> &y,
                      array<int, 8> &idx){
     bool p;
     signed char idx0[8];
-    int i;
     int i2;
     int j;
-    int pEnd;
     int b_p;
     int q;
     int qEnd;
@@ -808,15 +807,15 @@ static void eml_sort(const array<double, 8> &x, array<double, 8> &y,
         }
     }
 
-    for(i = 0; i < 8; i++){
+    for(int i = 0; i < 8; ++i){
         idx0[i] = 1;
     }
 
-    i = 2;
+    int i = 2;
     while (i < 8){
         i2 = i << 1;
         j = 1;
-        for(pEnd = 1 + i; pEnd < 9; pEnd = qEnd + i){
+        for(int pEnd = 1 + i; pEnd < 9; pEnd = qEnd + i){
             b_p = j;
             q = pEnd - 1;
             qEnd = j + i2;
@@ -836,31 +835,31 @@ static void eml_sort(const array<double, 8> &x, array<double, 8> &y,
 
                 if(p){
                     idx0[k] = (signed char)idx[b_p - 1];
-                    b_p++;
+                    ++b_p;
                     if(b_p == pEnd){
                         while(q + 1 < qEnd){
-                            k++;
+                            ++k;
                             idx0[k] = (signed char)idx[q];
-                            q++;
+                            ++q;
                         }
                     }
                 }
                 else{
                     idx0[k] = (signed char)idx[q];
-                    q++;
+                    ++q;
                     if(q + 1 == qEnd){
                         while(b_p < pEnd){
-                            k++;
+                            ++k;
                             idx0[k] = (signed char)idx[b_p - 1];
-                            b_p++;
+                            ++b_p;
                         }
                     }
                 }
 
-                k++;
+                ++k;
             }
 
-            for(k = 0; k + 1 <= kEnd; k++){
+            for(int k = 0; k + 1 <= kEnd; ++k){
                 idx[(j + k) - 1] = idx0[k];
             }
 
@@ -870,7 +869,7 @@ static void eml_sort(const array<double, 8> &x, array<double, 8> &y,
         i = i2;
     }
 
-    for(int k = 0; k < 8; k++){
+    for(int k = 0; k < 8; ++k){
         y[k] = x[idx[k] - 1];
     }
 }
@@ -1030,15 +1029,14 @@ static void csp(const array<double, 7200> &data1,
 //
 static void emxEnsureCapacity(emxArray_real_T *emxArray, int oldNumel){
     int newNumel;
-    int i;
     double *newData;
     newNumel = 1;
-    for(i = 0; i < emxArray->numDimensions; i++){
+    for(int i = 0; i < emxArray->numDimensions; ++i){
         newNumel *= emxArray->size[i];
     }
 
     if(newNumel > emxArray->allocatedSize){
-        i = emxArray->allocatedSize;
+        int i = emxArray->allocatedSize;
         if(i < 16){
             i = 16;
         }
@@ -1084,7 +1082,6 @@ static void emxFree_real_T(emxArray_real_T **pEmxArray){
 //
 static void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions){
     emxArray_real_T *emxArray;
-    int i;
     *pEmxArray = new emxArray_real_T;
     emxArray = *pEmxArray;
     emxArray->data = nullptr;
@@ -1092,7 +1089,7 @@ static void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions){
     emxArray->size = new int[numDimensions];
     emxArray->allocatedSize = 0;
     emxArray->canFreeData = true;
-    for(i = 0; i < numDimensions; i++){
+    for(int i = 0; i < numDimensions; ++i){
         emxArray->size[i] = 0;
     }
 }
@@ -1104,9 +1101,7 @@ static void emxInit_real_T(emxArray_real_T **pEmxArray, int numDimensions){
 //
 static void filter(const emxArray_real_T *x, emxArray_real_T *y){
     short iv0[2];
-    int k;
     double dbuffer[5];
-    int j;
     double b_dbuffer;
     //5hz - 40hz
     static const double dv1[5] = {
@@ -1126,30 +1121,30 @@ static void filter(const emxArray_real_T *x, emxArray_real_T *y){
     };
 
 
-    for(k = 0; k < 2; k++){
+    for(int k = 0; k < 2; ++k){
         iv0[k] = (short)x->size[k];
     }
 
-    k = y->size[0] * y->size[1];
+    int capacity = y->size[0] * y->size[1];
     y->size[0] = 1;
     y->size[1] = iv0[1];
-    emxEnsureCapacity((emxArray_real_T *)y, k);
-    for(k = 0; k < 4; k++){
+    emxEnsureCapacity((emxArray_real_T *)y, capacity);
+    for(int k = 0; k < 4; ++k){
         dbuffer[k + 1] = 0.0;
     }
 
-    for(j = 0; j + 1 <= x->size[1]; j++){
-        for(k = 0; k < 4; k++){
+    for(int j = 0; j + 1 <= x->size[1]; ++j){
+        for(int k = 0; k < 4; ++k){
             dbuffer[k] = dbuffer[k + 1];
         }
 
         dbuffer[4] = 0.0;
-        for(k = 0; k < 5; k++){
+        for(int k = 0; k < 5; ++k){
             b_dbuffer = dbuffer[k] + x->data[j] * dv1[k];
             dbuffer[k] = b_dbuffer;
         }
 
-        for(k = 0; k < 4; k++){
+        for(int k = 0; k < 4; ++k){
             dbuffer[k + 1] -= dbuffer[0] * dv2[k + 1];
         }
 
@@ -1162,10 +1157,8 @@ static void filter(const emxArray_real_T *x, emxArray_real_T *y){
 // Return Type  : double
 //
 static double sum(const double x[6]){
-    double y;
-    int k;
-    y = x[0];
-    for(k = 0; k < 5; k++){
+    double y = x[0];
+    for(int k = 0; k < 5; ++k){
         y += x[k + 1];
     }
 
@@ -1533,7 +1526,7 @@ void ehdu::csp_train_ovo(const array<double, 7200> &data_left_raw,
             p_10[i0 + 6 * n] = dv0[i0] / 60.0;
             for(int i1 = 0; i1 < 60; ++i1){
                 c_data_right[i0 + 6 * i1] = 0.0;
-                for(int jj = 0; jj < 8; jj++){
+                for(int jj = 0; jj < 8; ++jj){
                     c_data_right[i0 + 6 * i1] += data_idle[(i1 + 60 * jj) + 480 * n] *
                             W3[jj + 8 * i0];
                 }
