@@ -12,7 +12,7 @@ Cyton::Cyton(QObject *parent): QThread(parent){
     params.serial_port = string("/dev/ttyUSB0");
     board = new BoardShim(static_cast<int>(BoardIds::CYTON_BOARD),
                           params);
-    board->prepare_session();
+//    board->prepare_session();
 }
 
 Cyton::~Cyton(){

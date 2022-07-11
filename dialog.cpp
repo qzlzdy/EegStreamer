@@ -14,10 +14,10 @@ Dialog::Dialog(QWidget *parent): QDialog(parent), ui(new Ui::Dialog){
     //加载QSS
     loadQssSlot("Style");
     //初始化对象
-    chartWidght = nullptr;
-    impedanceWidght = nullptr;
+    chartWidget = nullptr;
+    impedanceWidget = nullptr;
     cytonFftwDataHandler = nullptr;
-    recordWidght = nullptr;
+    recordWidget = nullptr;
     sendPort = nullptr;
     portThread = nullptr;
     parad = nullptr;
@@ -33,9 +33,9 @@ Dialog::~Dialog(){
     portThread->wait();
     delete portThread;
     dataRec->deleteLater();
-    delete chartWidght;
-    delete impedanceWidght;
-    delete recordWidght;
+    delete chartWidget;
+    delete impedanceWidget;
+    delete recordWidget;
     delete sendPort;
     if(cytonFftwDataHandler != nullptr){
         delete cytonFftwDataHandler;
@@ -59,16 +59,17 @@ Dialog::~Dialog(){
     delete ui;
 }
 
-//信号与曹连接
-void Dialog::connetSlots()
-{
+/**
+ * @brief 信号与槽连接
+ */
+void Dialog::connetSlots(){
     //chart数据更新
     connect(dataRec, &Cyton::bufferDataSignal,
-            chartWidght, &SignalChart::chartAddData);
+            chartWidget, &SignalChart::chartAddData);
     //impedance数据更新
 //    connect(dataRec,&Cyton::fixedTimeSignal,impedanceWidght,&impedancechart::impedanceQualitySlot);
     //reset
-    connect(impedanceWidght, &impedancechart::resetSignals,
+    connect(impedanceWidget, &impedancechart::resetSignals,
             dataRec, &Cyton::reset);
     //start
     connect(startButton, &QPushButton::clicked, this, &Dialog::cytonStart);
@@ -79,14 +80,14 @@ void Dialog::connetSlots()
     //stop FFTW
     connect(fftwStopButton, &QPushButton::clicked, this, &Dialog::fftwStop);
     //start/stop record
-    connect(recordWidght, &saveEEG::isTimeToRecord, this, [&](bool flag){
+    connect(recordWidget, &saveEEG::isTimeToRecord, this, [&](bool flag){
         if(flag){
             connect(dataRec, &Cyton::offlineDataSignal,
-                    recordWidght, &saveEEG::recordEEGslots);
+                    recordWidget, &saveEEG::recordEEGslots);
         }
         else{
             disconnect(dataRec, &Cyton::offlineDataSignal,
-                       recordWidght, &saveEEG::recordEEGslots);
+                       recordWidget, &saveEEG::recordEEGslots);
         }
         dataRec->recordSwitchFlag = flag;
     });
@@ -158,26 +159,28 @@ void Dialog::connetSlots()
             }
         });
 
-        cspTrain->filename = recordWidght->lineeditdata();
+        cspTrain->filename = recordWidget->lineeditdata();
         cspTrain->start();
     });
 }
 
-//初始化对象
+/**
+ * @brief 初始化对象
+ */
 void Dialog::initialize(){
     dataRec = new Cyton(nullptr);
-    if(chartWidght == nullptr || impedanceWidght == nullptr
-                              || recordWidght == nullptr){
+    if(chartWidget == nullptr || impedanceWidget == nullptr
+                              || recordWidget == nullptr){
         //channelChart
-        chartWidght = new SignalChart(nullptr, dataRec->chooseChannelString);
-        chartWidght->chartInit();
+        chartWidget = new SignalChart(nullptr, dataRec->chooseChannelString);
+        chartWidget->chartInit();
         //impedanceChart
-        impedanceWidght = new impedancechart;
+        impedanceWidget = new impedancechart;
         //saveEEG
-        recordWidght = new saveEEG(this, dataRec->chooseChannelString,
+        recordWidget = new saveEEG(this, dataRec->chooseChannelString,
                                    "" /*FIXME DSI_REFERENCE_DATA*/);
-        recordWidght->startRecordButton(false);
-        recordWidght->stopRecordButton(false);
+        recordWidget->startRecordButton(false);
+        recordWidget->stopRecordButton(false);
     }
     //port
     sendPort = new rehabilitativeUsart;
@@ -208,15 +211,15 @@ void Dialog::initialize(){
     newLayout = new QHBoxLayout;
 
     //布局
-    buttonLayout->addWidget(recordWidght);
+    buttonLayout->addWidget(recordWidget);
     buttonLayout->addWidget(startButton);
     buttonLayout->addWidget(stopButton);
     buttonLayout->setSpacing(10);
     buttonLayout->setContentsMargins(0,0,0,0);
 
-    widghtLayout->addWidget(impedanceWidght);
+    widghtLayout->addWidget(impedanceWidget);
     widghtLayout->addStretch();
-    widghtLayout->addWidget(chartWidght);
+    widghtLayout->addWidget(chartWidget);
     widghtLayout->setSpacing(10);
     widghtLayout->setContentsMargins(0,0,0,0);
 
@@ -276,7 +279,9 @@ void Dialog::initialize(){
     connect(parad, &Paradigm::closeSignal, this, [&](){fftwStop();});
 }
 
-//加载QSS
+/**
+ * @brief 加载QSS
+ */
 void Dialog::loadQssSlot(QString name){
     QFile file(QString("://QSS/%1.qss").arg(name));
     file.open(QFile::ReadOnly);
@@ -288,10 +293,10 @@ void Dialog::cytonStart(){
     if(dataRec == nullptr){
         dataRec = new Cyton(nullptr);
         connect(dataRec, &Cyton::bufferDataSignal,
-                chartWidght, &SignalChart::chartAddData);
+                chartWidget, &SignalChart::chartAddData);
 //        connect(dataRec, &Cyton::fixedTimeSignal,
 //                impedanceWidght, &impedancechart::impedanceQualitySlot);
-        connect(impedanceWidght, &impedancechart::resetSignals,
+        connect(impedanceWidget, &impedancechart::resetSignals,
                 dataRec, &Cyton::reset);
     }
     try{
@@ -301,8 +306,8 @@ void Dialog::cytonStart(){
         stopButton->setEnabled(true);
         fftwStartButton->setEnabled(true);
         fftwStopButton->setEnabled(false);
-        recordWidght->startRecordButton(true);
-        recordWidght->stopRecordButton(false);
+        recordWidget->startRecordButton(true);
+        recordWidget->stopRecordButton(false);
         startTrainButton->setEnabled(true);
         if(trainBox->currentText()!="FFTW.SW"){
             startTrainButton->setEnabled(true);
@@ -321,8 +326,8 @@ void Dialog::cytonStop(){
     stopButton->setEnabled(false);
     fftwStartButton->setEnabled(false);
     fftwStopButton->setEnabled(false);
-    recordWidght->startRecordButton(false);
-    recordWidght->stopRecordButton(false);
+    recordWidget->startRecordButton(false);
+    recordWidget->stopRecordButton(false);
     startTrainButton->setEnabled(false);
     trainBox->setEnabled(false);
     if(cytonFftwDataHandler != nullptr){
@@ -335,10 +340,14 @@ void Dialog::cytonStop(){
     dataRec->stopStream();
     //imp复原
     ChannelImpedance impData;
-    impedanceWidght->impedanceQualitySlot(impData);
+    impedanceWidget->impedanceQualitySlot(impData);
 }
 
-//打开FFTW===================算法入口===================
+/**
+ * @brief 打开FFTW
+ *
+ * ===================算法入口===================
+ */
 void Dialog::fftwStart(){
     if(trainBox->currentText() == "CSP and CCA.nomarl"){
         if(cspTrain == nullptr){
@@ -346,9 +355,9 @@ void Dialog::fftwStart(){
             return;
         }
         cytonFftwDataHandler = new CytonFftw(new CspCca(
-            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
-            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
-        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+            cspTrain->W1, cspTrain->sample1, cspTrain->W2,
+            cspTrain->sample2, cspTrain->W3, cspTrain->sample3));
+        cytonFftwDataHandler->useName = recordWidget->lineeditdata();
         cytonFftwDataHandler->recordInit();
     }
     else if(trainBox->currentText() == "CSP and CCA.SW"){
@@ -357,9 +366,9 @@ void Dialog::fftwStart(){
             return;
         }
         cytonFftwDataHandler = new CytonFftw(new SwCspCca(
-            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
-            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
-        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+            cspTrain->W1, cspTrain->sample1, cspTrain->W2,
+            cspTrain->sample2, cspTrain->W3, cspTrain->sample3));
+        cytonFftwDataHandler->useName = recordWidget->lineeditdata();
         cytonFftwDataHandler->recordInit();
 
         /**********************以下为新增**********************/
@@ -370,9 +379,9 @@ void Dialog::fftwStart(){
             return;
         }
         cytonFftwDataHandler = new CytonFftw(new CspKcca(
-            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
-            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
-        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+            cspTrain->W1, cspTrain->sample1, cspTrain->W2,
+            cspTrain->sample2, cspTrain->W3, cspTrain->sample3));
+        cytonFftwDataHandler->useName = recordWidget->lineeditdata();
         cytonFftwDataHandler->recordInit();
     }
     else if(trainBox->currentText()=="CSP and KCCA.SW"){
@@ -381,16 +390,16 @@ void Dialog::fftwStart(){
             return;
         }
         cytonFftwDataHandler = new CytonFftw(new SwCspKcca(
-            cspTrain->_W1, cspTrain->_sample1, cspTrain->_W2,
-            cspTrain->_sample2, cspTrain->_W3, cspTrain->_sample3));
-        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+            cspTrain->W1, cspTrain->sample1, cspTrain->W2,
+            cspTrain->sample2, cspTrain->W3, cspTrain->sample3));
+        cytonFftwDataHandler->useName = recordWidget->lineeditdata();
         cytonFftwDataHandler->recordInit();
         /**********************以上为新增**********************/
 
     }
     else if(trainBox->currentText() == "FFTW.SW"){
         cytonFftwDataHandler = new CytonFftw(new Fftw());
-        cytonFftwDataHandler->useName = recordWidght->lineeditdata();
+        cytonFftwDataHandler->useName = recordWidget->lineeditdata();
         cytonFftwDataHandler->recordInit();
     }
 
@@ -413,7 +422,9 @@ void Dialog::fftwStart(){
     parad->StandMode();
 }
 
-//关闭FFTW
+/**
+ * @brief 关闭FFTW
+ */
 void Dialog::fftwStop(){
     if(fs_State == nullptr){
         return;
@@ -436,14 +447,18 @@ void Dialog::fftwStop(){
     ui->tabWidget->setCurrentIndex(0);
 }
 
-//打开right视频
+/**
+ * @brief 打开right视频
+ */
 void Dialog::startVideoRight(){
     medialist->setCurrentIndex(1);
     videoWidget->show();
     player->play();
 }
 
-//打开left视频
+/**
+ * @brief 打开left视频
+ */
 void Dialog::startVideoLeft(){
     medialist->setCurrentIndex(0);
     videoWidget->show();
@@ -463,17 +478,19 @@ void Dialog::toMI(){
     ui->tabWidget->setCurrentIndex(1);
 }
 
-//范式状态切换
-/****
+/**
+ * @brief 范式状态切换
+ *
  * 拟写一个线程：在线程中将缓存队列中存储的状态取出进行状态机判断
  * 判断过后主要工作：1.串口发送指令 2.进行状态机切换 3.范式切换 4.刺激器开关
  * 1.串口要加一个函数，接受0x数字进行显示的发送
  * 2.关于刺激器的开关
  * 3.范式切换主要难点在MI部分
  * tip.EEG的部分还要注意Idle状态的编写
- * ******/
-//要有个按钮开关——范式（这两个按钮在STAND界面）
-//初始化——Stand状态——开SSVEP
+ *
+ * 要有个按钮开关——范式(这两个按钮在STAND界面)
+ * 初始化——Stand状态——开SSVEP
+ */
 void Dialog::changeMode(const int &data){
     if(fs_State != nullptr){
         StateCommand *tmp = fs_State->Operation(data, sendPort, parad, this);

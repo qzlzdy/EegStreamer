@@ -171,7 +171,7 @@ int CspCca::step(ChannelSignal &getSignalDataAdress){
         else{//getSignalDataAdress.MI_SSVEP == 1
             MiButterFilter(inputData, outputData);
 
-            int rec = csp_rec_ovo(outputData.data(), W1, sample1,
+            int rec = csp_rec_ovo(outputData, W1, sample1,
                                   W2, sample2, W3, sample3);
             qDebug() << "juice" << "  MI" << "   " << rec;
             //左-右-空闲 —— 1 2 3
@@ -382,7 +382,7 @@ int SwCspCca::step(ChannelSignal &getSignalDataAdress){
         else{//getSignalDataAdress.MI_SSVEP == 1
             MiButterFilter(inputData, outputData);
 
-            double rec = csp_rec_ovo(outputData.data(), W1, sample1,
+            double rec = csp_rec_ovo(outputData, W1, sample1,
                                      W2, sample2, W3, sample3);
             qDebug() << "juice  MI   " << rec;
             //左-右-空闲 —— 1 2 3
@@ -465,7 +465,7 @@ int CspKcca::step(ChannelSignal &getSignalDataAdress){
         else{//getSignalDataAdress.MI_SSVEP == 1
             MiButterFilter(inputData, outputData);
 
-            int rec = csp_rec_ovo(outputData.data(), W1, sample1,
+            int rec = csp_rec_ovo(outputData, W1, sample1,
                                   W2, sample2, W3, sample3);
             qDebug() << "juice  MI   " << rec;
             //左-右-空闲 —— 1 2 3
@@ -577,7 +577,7 @@ int SwCspKcca::step(ChannelSignal &getSignalDataAdress){
         else{//getSignalDataAdress.MI_SSVEP == 1
             MiButterFilter(inputData, outputData);
 
-            double rec = csp_rec_ovo(outputData.data(), W1, sample1,
+            double rec = csp_rec_ovo(outputData, W1, sample1,
                                      W2, sample2, W3, sample3);
             qDebug() << "juice  MI   " << rec;
             //左-右-空闲 —— 1 2 3

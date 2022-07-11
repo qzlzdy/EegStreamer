@@ -36,9 +36,9 @@ signals:
 protected:
     void run() override;
 private:
-    double dataIdleRaw[7200];
-    double dataLeftRaw[7200];
-    double dataRightRaw[7200];
+    std::array<double, 7200> dataIdleRaw;
+    std::array<double, 7200> dataLeftRaw;
+    std::array<double, 7200> dataRightRaw;
 };
 
 }

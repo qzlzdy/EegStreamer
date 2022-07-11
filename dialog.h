@@ -51,11 +51,11 @@ private:
     void initialize();//初始化
     void loadQssSlot(QString name);//读取QSS
     Ui::Dialog *ui;//ui
-    SignalChart *chartWidght;//chart
-    impedancechart *impedanceWidght;//imp
+    SignalChart *chartWidget;//chart
+    impedancechart *impedanceWidget;//imp
     ehdu::Cyton *dataRec;
     ehdu::CytonFftw *cytonFftwDataHandler;//fftw
-    saveEEG *recordWidght;//record
+    saveEEG *recordWidget;//record
     rehabilitativeUsart *sendPort;//usart
     QThread *portThread;//thread
     Paradigm *parad;//fan_shi
