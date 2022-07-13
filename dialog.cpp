@@ -32,7 +32,7 @@ Dialog::~Dialog(){
     portThread->quit();
     portThread->wait();
     delete portThread;
-    dataRec->deleteLater();
+    delete dataRecv;
     delete chartWidget;
     delete impedanceWidget;
     delete recordWidget;
@@ -64,13 +64,14 @@ Dialog::~Dialog(){
  */
 void Dialog::connetSlots(){
     //chart数据更新
-    connect(dataRec, &Cyton::bufferDataSignal,
+    connect(dataRecv, &Cyton::bufferDataSignal,
             chartWidget, &SignalChart::chartAddData);
     //impedance数据更新
-//    connect(dataRec,&Cyton::fixedTimeSignal,impedanceWidght,&impedancechart::impedanceQualitySlot);
+//    connect(dataRecv, &Cyton::fixedTimeSignal,
+//            impedanceWidght, &impedancechart::impedanceQualitySlot);
     //reset
     connect(impedanceWidget, &impedancechart::resetSignals,
-            dataRec, &Cyton::reset);
+            dataRecv, &Cyton::reset);
     //start
     connect(startButton, &QPushButton::clicked, this, &Dialog::cytonStart);
     //stop
@@ -82,14 +83,14 @@ void Dialog::connetSlots(){
     //start/stop record
     connect(recordWidget, &saveEEG::isTimeToRecord, this, [&](bool flag){
         if(flag){
-            connect(dataRec, &Cyton::offlineDataSignal,
+            connect(dataRecv, &Cyton::offlineDataSignal,
                     recordWidget, &saveEEG::recordEEGslots);
         }
         else{
-            disconnect(dataRec, &Cyton::offlineDataSignal,
+            disconnect(dataRecv, &Cyton::offlineDataSignal,
                        recordWidget, &saveEEG::recordEEGslots);
         }
-        dataRec->recordSwitchFlag = flag;
+        dataRecv->recordSwitchFlag = flag;
     });
     connect(searchButton, &QPushButton::clicked, this, [&](){
         //find com
@@ -115,7 +116,6 @@ void Dialog::connetSlots(){
             portBox->clear();
             portBox->addItem(portName);
         }
-        portBox->addItem("/dev/tty");
         searchButton->setText("Connect");
         searchButton->setDisabled(false);
     });
@@ -168,16 +168,16 @@ void Dialog::connetSlots(){
  * @brief 初始化对象
  */
 void Dialog::initialize(){
-    dataRec = new Cyton(nullptr);
+    dataRecv = new Cyton(nullptr);
     if(chartWidget == nullptr || impedanceWidget == nullptr
                               || recordWidget == nullptr){
         //channelChart
-        chartWidget = new SignalChart(nullptr, dataRec->chooseChannelString);
+        chartWidget = new SignalChart(nullptr, dataRecv->chooseChannelString);
         chartWidget->chartInit();
         //impedanceChart
         impedanceWidget = new impedancechart;
         //saveEEG
-        recordWidget = new saveEEG(this, dataRec->chooseChannelString,
+        recordWidget = new saveEEG(this, dataRecv->chooseChannelString,
                                    "" /*FIXME DSI_REFERENCE_DATA*/);
         recordWidget->startRecordButton(false);
         recordWidget->stopRecordButton(false);
@@ -247,8 +247,10 @@ void Dialog::initialize(){
     medialist=new QMediaPlaylist;
     ui->vedioLayout->addWidget(videoWidget);
     player->setVideoOutput(videoWidget);
-    QString vedioPath = QString("%1%2").arg(qApp->applicationDirPath(), QString("/video/left.avi"));
-    QString vedioPath2 = QString("%1%2").arg(qApp->applicationDirPath(), QString("/video/right.avi"));
+    QString vedioPath = QString("%1%2").arg(qApp->applicationDirPath(),
+                                            QString("/video/left.avi"));
+    QString vedioPath2 = QString("%1%2").arg(qApp->applicationDirPath(),
+                                             QString("/video/right.avi"));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath));
     medialist->addMedia(QUrl::fromLocalFile(vedioPath2));
 //    player->setPlaylist(medialist);
@@ -263,9 +265,12 @@ void Dialog::initialize(){
     connect(controls, &PlayerControls::pause, player, &QMediaPlayer::pause);
     connect(controls, &PlayerControls::stop, player, &QMediaPlayer::stop);
     connect(controls, &PlayerControls::next, medialist, &QMediaPlaylist::next);
-    connect(controls, &PlayerControls::changeRate, player, &QMediaPlayer::setPlaybackRate);
-    connect(controls, &PlayerControls::stop, videoWidget, QOverload<>::of(&QVideoWidget::update));
-    connect(player, &QMediaPlayer::playbackStateChanged, controls, &PlayerControls::setState);
+    connect(controls, &PlayerControls::changeRate,
+            player, &QMediaPlayer::setPlaybackRate);
+    connect(controls, &PlayerControls::stop,
+            videoWidget, QOverload<>::of(&QVideoWidget::update));
+    connect(player, &QMediaPlayer::playbackStateChanged,
+            controls, &PlayerControls::setState);
 
     //fan_shi
     parad = new Paradigm;
@@ -290,18 +295,18 @@ void Dialog::loadQssSlot(QString name){
 }
 
 void Dialog::cytonStart(){
-    if(dataRec == nullptr){
-        dataRec = new Cyton(nullptr);
-        connect(dataRec, &Cyton::bufferDataSignal,
+    if(dataRecv == nullptr){
+        dataRecv = new Cyton(nullptr);
+        connect(dataRecv, &Cyton::bufferDataSignal,
                 chartWidget, &SignalChart::chartAddData);
-//        connect(dataRec, &Cyton::fixedTimeSignal,
+//        connect(dataRecv, &Cyton::fixedTimeSignal,
 //                impedanceWidght, &impedancechart::impedanceQualitySlot);
         connect(impedanceWidget, &impedancechart::resetSignals,
-                dataRec, &Cyton::reset);
+                dataRecv, &Cyton::reset);
     }
     try{
-        dataRec->startStream();
-//        dataRec->start();
+        dataRecv->startStream();
+        dataRecv->start();
         startButton->setEnabled(false);
         stopButton->setEnabled(true);
         fftwStartButton->setEnabled(true);
@@ -332,12 +337,12 @@ void Dialog::cytonStop(){
     trainBox->setEnabled(false);
     if(cytonFftwDataHandler != nullptr){
         cytonFftwDataHandler->readingFlag = false;
-        dataRec->fftwSwitchFlag = false;
+        dataRecv->fftwSwitchFlag = false;
         cytonFftwDataHandler->deleteLater();
         cytonFftwDataHandler = nullptr;
     }
-    //终止线程，关闭DSI
-    dataRec->stopStream();
+    //终止线程，关闭
+    dataRecv->stopStream();
     //imp复原
     ChannelImpedance impData;
     impedanceWidget->impedanceQualitySlot(impData);
@@ -404,7 +409,7 @@ void Dialog::fftwStart(){
     }
 
     cytonFftwDataHandler->uiState = 0;
-    dataRec->fftwSwitchFlag = true;
+    dataRecv->fftwSwitchFlag = true;
     cytonFftwDataHandler->start();
     fftwStartButton->setEnabled(false);
     fftwStopButton->setEnabled(true);
@@ -434,12 +439,12 @@ void Dialog::fftwStop(){
     fs_State = nullptr;
 
     cytonFftwDataHandler->readingFlag = false;
-    dataRec->fftwSwitchFlag = false;
+    dataRecv->fftwSwitchFlag = false;
     cytonFftwDataHandler->deleteLater();
     cytonFftwDataHandler = nullptr;
     fftwStartButton->setEnabled(true);
     fftwStopButton->setEnabled(false);
-    if(trainBox->currentText()!="FFTW.SW"){
+    if(trainBox->currentText()!= "FFTW.SW"){
         startTrainButton->setEnabled(true);
     }
     trainBox->setEnabled(true);

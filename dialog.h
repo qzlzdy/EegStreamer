@@ -53,7 +53,7 @@ private:
     Ui::Dialog *ui;//ui
     SignalChart *chartWidget;//chart
     impedancechart *impedanceWidget;//imp
-    ehdu::Cyton *dataRec;
+    ehdu::Cyton *dataRecv;
     ehdu::CytonFftw *cytonFftwDataHandler;//fftw
     saveEEG *recordWidget;//record
     rehabilitativeUsart *sendPort;//usart
