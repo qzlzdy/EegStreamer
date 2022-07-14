@@ -1,39 +1,26 @@
 #include "OpenBCI/CytonFftw.h"
 
 #include <QCoreApplication>
+#include "OpenBCI/Cyton.h"
 
 using namespace ehdu;
 
-const int CytonFftw::queueSize = 300;
-
 CytonFftw::CytonFftw(AlgorithmSwitch *as, QObject *parent): QThread(parent),
 chooseAlorithm(as){
-    //定义缓存区大小
-    threadShareData.reserve(queueSize);
-    //初始化全区动态变量
-    bufferMutex = new QMutex;
-    bufferIsEmpty = new QWaitCondition;
-    bufferIsFull = new QWaitCondition;
+
 }
 
 CytonFftw::~CytonFftw(){
-    //终止线程，关闭DSI
+    //终止线程，关闭
     readingFlag = false;
-    bufferIsEmpty->wakeAll();
+    SignalBuffer::empty.wakeAll();
     quit();
     wait();
-    //缓存区清空
-    threadShareData.clear();
-    //删除动态全局变量
-
     if(csvFile->isOpen()){
         csvFile->close();
     }
     delete csvFile;
     delete in;
-    delete bufferMutex;
-    delete bufferIsEmpty;
-    delete bufferIsFull;
     delete chooseAlorithm;
 }
 
@@ -78,22 +65,22 @@ void CytonFftw::run(){
 
 void CytonFftw::motorImageryUseFftw(){
     /*线程之间 传递数据*/
-    bufferMutex->lock();
+    SignalBuffer::mutex.lock();
     //若缓存区为空,交出锁,进入休眠等待
-    if(threadShareData.isEmpty()){
-        bufferIsEmpty->wait(bufferMutex);
+    if(SignalBuffer::sharedData.isEmpty()){
+        SignalBuffer::empty.wait(&SignalBuffer::mutex);
     }
     //若线程结束,强制返回，并不进行睡眠
     if(readingFlag == false){
-        bufferIsFull->wakeAll();
-        bufferMutex->unlock();
+        SignalBuffer::full.wakeAll();
+        SignalBuffer::mutex.unlock();
         return;
     }
 
     //从缓存区拿出数据,1/300时间窗，想怎么使用可根据接口自定义
-    ChannelSignal *tmpSignalDataAdress = threadShareData.dequeue();
-    bufferIsFull->wakeAll();
-    bufferMutex->unlock();
+    ChannelSignal *tmpSignalDataAdress = SignalBuffer::sharedData.dequeue();
+    SignalBuffer::full.wakeAll();
+    SignalBuffer::mutex.unlock();
 
     //记录数据
     *in << (*tmpSignalDataAdress).C3.first << ",";

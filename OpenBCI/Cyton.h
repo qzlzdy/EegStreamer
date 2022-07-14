@@ -2,17 +2,21 @@
 #define OPENBCI_CYTON_H
 
 #include <QList>
+#include <QMutex>
+#include <QQueue>
 #include <QString>
 #include <QThread>
-
-#include "Dataform.h"
+#include <QWaitCondition>
 #include "board_shim.h"
+#include "OpenBCI/Dataform.h"
 
 namespace ehdu{
 
 class Cyton final: public QThread{
     Q_OBJECT
 public:
+    static const std::vector<int> eeg_channels;
+    static const std::vector<std::string> eeg_names;
     Cyton(QObject *parent = nullptr);
     ~Cyton();
     void startStream();
@@ -24,17 +28,23 @@ public:
 public slots:
     void reset();
 signals:
-    void offlineDataSignal(ehdu::ChannelSignal data);
-    void bufferDataSignal(ehdu::ChannelSignal data);
-//    void fixedTimeSignal(ehdu::ChannelImpedance data);
+    void offlineDataSignal(const BrainFlowArray<double, 2> &data);
+    void bufferDataSignal(const BrainFlowArray<double, 2> &data);
 protected:
     void run() override;
 private:
-    void dataStore(ChannelSignal *data, QString channelName,
-                   double channelData);
     void readData();
     BoardShim *board;
-    ChannelSignal chartSignal;
+};
+
+class SignalBuffer{
+public:
+    SignalBuffer() = delete;
+    static const qsizetype QUEUE_SIZE;
+    static QQueue<ChannelSignal *> sharedData;
+    static QMutex mutex;
+    static QWaitCondition empty;
+    static QWaitCondition full;
 };
 
 };

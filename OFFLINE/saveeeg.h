@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QWidget>
-
+#include "board_shim.h"
 #include "OpenBCI/Dataform.h"
 
 QT_BEGIN_NAMESPACE
@@ -22,22 +22,20 @@ public:
     void startRecordButton(bool flag);
     void stopRecordButton(bool flag);
     QString lineeditdata();
-private:
-    Ui::saveEEG *ui;
-    QFile *csvFile;
-    long count;
-    QList<QString> signalTemp;
-    QString saveReference;
-    QTextStream *in;
-private slots:
-    void startRecordFile();
-    void stopRecordFile();
-    void recordHeadSlots();
 public slots:
-    void recordEEGslots(ehdu::ChannelSignal Data);
+    void recordEEGslots(const BrainFlowArray<double, 2> &Data);
 signals:
     void isTimeToRecord(bool flag);
     void stopRecordSignals();
+private:
+    Ui::saveEEG *ui;
+    std::string filename;
+    long count;
+    QList<QString> signalTemp;
+    QString saveReference;
+private slots:
+    void startRecordFile();
+    void stopRecordFile();
 };
 
 #endif // SAVEEEG_H

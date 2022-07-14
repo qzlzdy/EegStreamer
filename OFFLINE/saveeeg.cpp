@@ -1,5 +1,6 @@
 #include "saveeeg.h"
 #include "ui_saveeeg.h"
+#include "data_filter.h"
 
 using namespace ehdu;
 
@@ -7,9 +8,7 @@ saveEEG::saveEEG(QWidget *parent, QList<QString> saveSignal, QString reference):
 QWidget(parent), ui(new Ui::saveEEG),
 signalTemp(saveSignal),saveReference(reference){
     ui->setupUi(this);
-    csvFile = new QFile();
     count = 0;
-    in = nullptr;
     QObject::connect(ui->startRecordButton, &QPushButton::clicked,
                      this, &saveEEG::startRecordFile);
     QObject::connect(ui->stopRecordButton, &QPushButton::clicked,
@@ -17,58 +16,21 @@ signalTemp(saveSignal),saveReference(reference){
 }
 
 saveEEG::~saveEEG(){
-    if(csvFile->isOpen()){
-        csvFile->close();
-    }
-    delete csvFile;
-    delete in;
     delete ui;
 }
 
 //记录槽函数
-void saveEEG::recordEEGslots(ChannelSignal Data){
-    if(!csvFile->isOpen()){
-        return;
-    }
-
+void saveEEG::recordEEGslots(const BrainFlowArray<double, 2> &Data){
     //时间
     ++count;
-    //QString recordTime = QString::number((double)(++count)/300,'f',4);
-    //*in<<recordTime;
 
     //数据
-    double saveData;
-    saveData = Data.Fp1.first;
-    *in << QString::number(saveData, 'f', 4);
-
-    saveData = Data.Fp2.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.C3.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.C4.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.P7.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.P8.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.O1.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    saveData = Data.O2.first;
-    *in << "," << QString::number(saveData, 'f', 4);
-
-    *in << "\n";
+    DataFilter::write_file(Data, filename, "a");
 
     if(count >= 9000){
         stopRecordFile();
         QMessageBox::about(parentWidget(), "Cyton",
-                           QString("Finish %1!")
-                           .arg(ui->comboBox->currentText()));
+            QString("Finish %1!").arg(ui->comboBox->currentText()));
     }
 }
 
@@ -88,15 +50,7 @@ void saveEEG::startRecordFile(){
         return;
     }
     //创建文件并打开
-    csvFile->setFileName(csvFilePath);
-    if(!csvFile->open(QIODevice::WriteOnly)){
-        QMessageBox::about(parentWidget(), "Cyton", "File create fail!");
-        return;
-    }
-    //定义输出流
-    in = new QTextStream(csvFile);
-    //记录表头
-    //recordHeadSlots();
+    filename = csvFilePath.toStdString();
 
     //告诉线程可以开始记录了
     count = 0;
@@ -105,25 +59,10 @@ void saveEEG::startRecordFile(){
     ui->stopRecordButton->setEnabled(true);
 }
 
-//记录表头
-void saveEEG::recordHeadSlots(){
-    *in << "Reference" << "," << saveReference << "\n";
-    *in << "Time";
-    for(int i = 0; i < signalTemp.size() - 3; ++i){
-        QString temp = signalTemp.at(i);
-        *in << "," << temp;
-    }
-    *in << "\n";
-}
-
 //停止记录
 void saveEEG::stopRecordFile(){
     //告诉线程停止记录
     emit isTimeToRecord(false);
-    //关闭文件
-    csvFile->close();
-    delete in;
-    in = nullptr;
     ui->startRecordButton->setEnabled(true);
     ui->stopRecordButton->setEnabled(false);
 }

@@ -1,5 +1,6 @@
 #include "signalchart.h"
 #include "ui_signalchart.h"
+#include "OpenBCI/Cyton.h"
 
 #define XAXIS_STEP 0.2 //设置X步长
 #define GRAPH_POINT_NUM 250//总共显示的的点数
@@ -18,17 +19,8 @@ SignalChart::~SignalChart(){
 
 //曲线初始化
 void SignalChart::chartInit(){
-    //连接鼠标点击信号和槽
-    //connect(ui->chartWidget, SIGNAL(mousePress(QMouseEvent*)), this, SLOT(mousePress()));
-    //连接鼠标滚轮信号和槽
-    //connect(ui->chartWidget, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheel()));
-    //连接曲线选择信号和槽
-    //connect(ui->chartWidget, SIGNAL(selectionChangedByUser()), this, SLOT(selectionChanged()));
-    //设置交互方式
-    //ui->chartWidget->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom|QCP::iSelectAxes|QCP::iSelectLegend|QCP::iSelectPlottables);
-
     //设置背景
-    QBrush qBrush(0xffffff);//qBrush(0xf0f0f0);//qBrush(0xd6d3ce);
+    QBrush qBrush(0xffffff);
     ui->chartWidget->setBackground(qBrush);
 
     //设置标题
@@ -47,7 +39,6 @@ void SignalChart::chartInit(){
     ui->chartWidget->yAxis->setAutoTicks(true);
     ui->chartWidget->yAxis->setAutoTickStep(true);
     ui->chartWidget->yAxis->setAutoSubTicks(true);
-    //ui->chartWidget->yAxis->setRange(-20000.0,20000.0);
 
     //生成曲线加入widght中
     //曲线设置名称以及颜色
@@ -112,67 +103,47 @@ void SignalChart::chartInit(){
 }
 
 //数据动态更新槽
-void SignalChart::chartAddData(ChannelSignal data){
+void SignalChart::chartAddData(const BrainFlowArray<double, 2> &data){
     static int ind = 0;
     //增加X
     xAxisNum += XAXIS_STEP;
     //数据满时，清除数据
     if(xAxisNum / XAXIS_STEP > GRAPH_POINT_NUM){
-        for(int i = 0; i < paintSignals.size(); ++i){
-            QString temp = paintSignals.at(i);
-            if(temp == "Fp1"){
-                Fp1->clearData();
-            }
-            else if(temp == "Fp2"){
-                Fp2->clearData();
-            }
-            else if(temp == "C3"){
-                C3->clearData();
-            }
-            else if(temp == "C4"){
-                C4->clearData();
-            }
-            else if(temp == "P7"){
-                P7->clearData();
-            }
-            else if(temp == "P8"){
-                P8->clearData();
-            }
-            else if(temp == "O1"){
-                O1->clearData();
-            }
-            else if(temp == "O2"){
-                O2->clearData();
-            }
-        }
+        Fp1->clearData();
+        Fp2->clearData();
+        C3->clearData();
+        C4->clearData();
+        P7->clearData();
+        P8->clearData();
+        O1->clearData();
+        O2->clearData();
         xAxisNum = 0;
     }
     //添加数据
-    for(int i = 0; i < paintSignals.size(); ++i){
-        QString temp = paintSignals.at(i);
-        if(temp == "Fp1"){
-            Fp1->addData(xAxisNum, data.Fp1.first);
+    for(unsigned i = 0; i < Cyton::eeg_channels.size(); ++i){
+        if(Cyton::eeg_names[i] == "Fp1"){
+            Fp1->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "Fp2"){
-            Fp2->addData(xAxisNum, data.Fp2.first);
+        else if(Cyton::eeg_names[i] == "Fp2"){
+            Fp2->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "C3"){
-            C3->addData(xAxisNum, data.C3.first);
+        else if(Cyton::eeg_names[i] == "C3"){
+            C3->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "C4"){
-            C4->addData(xAxisNum, data.C4.first);
+        else if(Cyton::eeg_names[i] == "C4"){
+            C4->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "P7"){
-            P7->addData(xAxisNum, data.P7.first);
+        else if(Cyton::eeg_names[i] == "P7"){
+            P7->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "P8"){
-            P8->addData(xAxisNum, data.P8.first);
+        else if(Cyton::eeg_names[i] == "P8"){
+            P8->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "O1"){
-            O1->addData(xAxisNum, data.O1.first);
+        else if(Cyton::eeg_names[i] == "O1"){
+            O1->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
-        else if(temp == "O2"){
-            O2->addData(xAxisNum, data.O2.first);
+        else if(Cyton::eeg_names[i] == "O2"){
+            O2->addData(xAxisNum, data(Cyton::eeg_channels[i], 0));
         }
     }
     if(ind > 2){

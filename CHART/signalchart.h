@@ -3,7 +3,7 @@
 
 #include <mutex>
 #include <QWidget>
-
+#include "board_shim.h"
 #include "CHART/qcustomplot.h"
 #include "OpenBCI/Dataform.h"
 
@@ -18,7 +18,7 @@ public:
     ~SignalChart();
     void chartInit();
 public slots:
-    void chartAddData(ehdu::ChannelSignal data);
+    void chartAddData(const BrainFlowArray<double, 2> &data);
 private:
     QList<QString> paintSignals;
     Ui::signalChart *ui;

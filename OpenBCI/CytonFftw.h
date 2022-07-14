@@ -2,12 +2,8 @@
 #define CYTONFFTW_H
 
 #include <QFile>
-#include <QMutex>
-#include <QQueue>
 #include <QString>
 #include <QThread>
-#include <QWaitCondition>
-
 #include "OpenBCI/AlgorithmSwitch.h"
 
 namespace ehdu{
@@ -28,17 +24,10 @@ signals:
 protected:
     void run() override;
 private:
-    static const int queueSize;
     void motorImageryUseFftw();
     AlgorithmSwitch *chooseAlorithm = nullptr;
     QFile *csvFile = nullptr;
     QTextStream *in = nullptr;
-    QQueue<ChannelSignal *> threadShareData;
-    //定义互斥锁
-    QMutex *bufferMutex = nullptr;
-    //定义完成量
-    QWaitCondition *bufferIsEmpty = nullptr;
-    QWaitCondition *bufferIsFull = nullptr;
 };
 
 }
