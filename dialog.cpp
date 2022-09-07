@@ -92,23 +92,24 @@ void Dialog::connetSlots(){
         }
         dataRecv->recordSwitchFlag = flag;
     });
-    connect(searchButton, &QPushButton::clicked, this, [&](){
-        //find com
-        if(searchButton->text() == "Search Port"){
-            searchButton->setDisabled(true);
-            sendPort->findUsingPort();
-        //open com
-        }
-        else if(searchButton->text() == "Connect"){
-            sendPort->connectComPort(portBox->currentText());
-            searchButton->setText("Disconnect");
-        //close com
-        }
-        else if(searchButton->text() == "Disconnect"){
-            sendPort->closePort();
-            searchButton->setText("Search Port");
-        }
-    });
+    searchButton->setDisabled(true);
+//    connect(searchButton, &QPushButton::clicked, this, [&](){
+//        //find com
+//        if(searchButton->text() == "Search Port"){
+//            searchButton->setDisabled(true);
+//            sendPort->findUsingPort();
+//        //open com
+//        }
+//        else if(searchButton->text() == "Connect"){
+//            sendPort->connectComPort(portBox->currentText());
+//            searchButton->setText("Disconnect");
+//        //close com
+//        }
+//        else if(searchButton->text() == "Disconnect"){
+//            sendPort->closePort();
+//            searchButton->setText("Search Port");
+//        }
+//    });
     //add com
     connect(sendPort, &rehabilitativeUsart::usingComPortSignal,
             this, [&](QVector<QString> data){
@@ -278,7 +279,7 @@ void Dialog::initialize(){
     fanshiLayout->addWidget(parad);
     fanshiLayout->setSpacing(10);
     fanshiLayout->setContentsMargins(0,0,0,0);
-    ui->paradigm->setLayout(fanshiLayout);
+    ui->Paradigm->setLayout(fanshiLayout);
 
     fs_State = nullptr;
     connect(parad, &Paradigm::closeSignal, this, [&](){fftwStop();});

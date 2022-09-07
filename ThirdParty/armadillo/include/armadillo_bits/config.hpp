@@ -164,7 +164,7 @@
   #undef  ARMA_USE_HDF5
   #define ARMA_USE_HDF5
   
-  #define ARMA_HDF5_INCLUDE_DIR /usr/include/
+  #define ARMA_HDF5_INCLUDE_DIR /
 #endif
 
 #if !defined(ARMA_MAT_PREALLOC)
@@ -363,5 +363,5 @@
 // ARMA_AUX_LIBS lists the libraries required by Armadillo on this system, and
 // ARMA_AUX_INCDIRS lists the include directories required by Armadillo on this system.
 // Do not use these unless you know what you are doing.
-#define ARMA_AUX_LIBS /opt/intel/mkl/lib/intel64/libmkl_rt.so;/usr/lib/libhdf5.so;/usr/lib/libsz.so;/usr/lib/libz.so;/usr/lib/libdl.a;/usr/lib/libm.so
-#define ARMA_AUX_INCDIRS /usr/include
+#define ARMA_AUX_LIBS /opt/intel/oneapi/mkl/latest/lib/intel64/libmkl_rt.so
+#define ARMA_AUX_INCDIRS 

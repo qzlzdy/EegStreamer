@@ -10,24 +10,20 @@ rehabilitativeUsart::~rehabilitativeUsart()
     comPort->deleteLater();
 }
 
-void rehabilitativeUsart::findUsingPort()
-{
+void rehabilitativeUsart::findUsingPort(){
     //查找可用的串口
     QVector<QString> usingComPortNow;
-    foreach (const QSerialPortInfo &info,QSerialPortInfo::availablePorts())
-    {
+    foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()){
         QSerialPort serial;
         serial.setPort(info);
-        if(serial.open(QIODevice::ReadWrite))
-        {
+        if(serial.open(QIODevice::ReadWrite)){
             usingComPortNow << serial.portName();
         }
     }
     emit usingComPortSignal(usingComPortNow);
 }
 
-void rehabilitativeUsart::connectComPort(QString com)
-{
+void rehabilitativeUsart::connectComPort(QString com){
     //com init
     comPort->setPortName(com);
     if(comPort->open(QIODevice::ReadWrite)) //以读写方式打开串口

@@ -1,5 +1,4 @@
 #include "kcca.h"
-#include "CCA/me_CCA.h"
 #include "CCA/rt_nonfinite.h"
 
 #include <armadillo>
@@ -11,7 +10,7 @@ using namespace arma;
 
 // Function Declarations
 //为21*600的二维矩阵，其顺序为先列后行，就是
-extern void me_KCCA(const double data[12600], double left_fre, double right_fre,
+extern void me_KCCA(const double data[12600], double, double,
                    double *v, double *idx)
 {
 //    double dv0[4800];

@@ -69,9 +69,9 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="EegData">
       <attribute name="title">
        <string>EEG  Data</string>
       </attribute>
@@ -108,7 +108,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="MotorImagery">
       <attribute name="title">
        <string>Motor  Imagery</string>
       </attribute>
@@ -240,9 +240,14 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="paradigm">
+     <widget class="QWidget" name="Paradigm">
       <attribute name="title">
        <string>Paradigm</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="Ssvep">
+      <attribute name="title">
+       <string>Page</string>
       </attribute>
      </widget>
     </widget>
