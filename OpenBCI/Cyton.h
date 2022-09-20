@@ -2,13 +2,9 @@
 #define OPENBCI_CYTON_H
 
 #include <QList>
-#include <QMutex>
-#include <QQueue>
 #include <QString>
 #include <QThread>
-#include <QWaitCondition>
 #include "board_shim.h"
-#include "OpenBCI/Dataform.h"
 
 namespace ehdu{
 
@@ -22,29 +18,18 @@ public:
     void startStream();
     void stopStream();
     QList<QString> chooseChannelString;
-    bool fftwSwitchFlag;
     bool readingFlag;
-    bool recordSwitchFlag;
+    bool recordFlag;
 public slots:
     void reset();
 signals:
-    void offlineDataSignal(const BrainFlowArray<double, 2> &data);
     void bufferDataSignal(const BrainFlowArray<double, 2> &data);
+    void recordToFile(const BrainFlowArray<double, 2> &data);
 protected:
     void run() override;
 private:
     void readData();
     BoardShim *board;
-};
-
-class SignalBuffer{
-public:
-    SignalBuffer() = delete;
-    static const qsizetype QUEUE_SIZE;
-    static QQueue<ChannelSignal *> sharedData;
-    static QMutex mutex;
-    static QWaitCondition empty;
-    static QWaitCondition full;
 };
 
 };

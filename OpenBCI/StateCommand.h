@@ -1,7 +1,7 @@
 #ifndef STATE_COMMAND_H
 #define STATE_COMMAND_H
 
-#include "dialog.h"
+#include "EegStreamer.h"
 #include "OpenBCI/Dataform.h"
 #include "PARADIGM/paradigm.h"
 #include "USART/rehabilitativeusart.h"
