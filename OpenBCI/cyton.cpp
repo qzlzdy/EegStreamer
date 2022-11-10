@@ -1,4 +1,4 @@
-#include "OpenBCI/Cyton.h"
+#include "OpenBCI/cyton.h"
 
 #include <QtDebug>
 #include <string>
@@ -6,19 +6,9 @@
 using namespace std;
 using namespace ehdu;
 
-const vector<int> Cyton::eeg_channels = BoardShim::get_eeg_channels(
-        static_cast<int>(BoardIds::CYTON_BOARD));
-const vector<string> Cyton::eeg_names = BoardShim::get_eeg_names(
-        static_cast<int>(BoardIds::CYTON_BOARD));
-
 Cyton::Cyton(QObject *parent): QThread(parent){
     readingFlag = true;
     recordFlag = false;
-    chooseChannelString.resize(eeg_names.size());
-    transform(eeg_names.begin(), eeg_names.end(),
-              chooseChannelString.begin(), [&](const string &name){
-        return QString::fromStdString(name);
-    });
     BrainFlowInputParams params;
     params.serial_port = string("/dev/ttyUSB0");
     board = new BoardShim(static_cast<int>(BoardIds::CYTON_BOARD),
@@ -64,8 +54,8 @@ void Cyton::run(){
 }
 
 void Cyton::readData(){
-    while(board->get_board_data_count() > 0){
-        BrainFlowArray<double, 2> data = board->get_board_data(1);
+    if(board->get_board_data_count() > 0){
+        BrainFlowArray<double, 2> data = board->get_board_data();
         emit bufferDataSignal(data);
         if(recordFlag){
             emit recordToFile(data);

@@ -8,8 +8,6 @@ using namespace ehdu;
 
 Ssvep::Ssvep(QWidget *parent): QWidget(parent), ui(new Ui::Ssvep){
     ui->setupUi(this);
-    timer = new QTimer(this);
-    timerFlag = false;
 
     QString style = "background-color: rgb(255, 0, 255);";
     center = new QWidget(this);
@@ -32,16 +30,8 @@ Ssvep::Ssvep(QWidget *parent): QWidget(parent), ui(new Ui::Ssvep){
         ui->SsvepLayout->setColumnStretch(i, 1);
     }
 
-    connect(timer, &QTimer::timeout,
-            this, [&](){
-        if(timerFlag){
-            ssvepOn();
-        }
-        else{
-            ssvepOff();
-        }
-        timerFlag = !timerFlag;
-    });
+    timer = nullptr;
+    flipFlag = false;
 }
 
 Ssvep::~Ssvep(){
@@ -50,30 +40,49 @@ Ssvep::~Ssvep(){
     delete south;
     delete west;
     delete north;
-    delete timer;
+    if(timer){
+        timer->flashFlag = false;
+        timer->wait();
+        delete timer;
+    }
     delete ui;
 }
 
-void Ssvep::startSsvep(chrono::milliseconds cycle){
-    timer->start(cycle.count());
+void Ssvep::startSsvep(const chrono::nanoseconds &cycle){
+    timer = new SsvepTimer(cycle);
+    connect(timer, &SsvepTimer::timeout, this, [&](){
+        if(flipFlag){
+            ssvepOn();
+        }
+        else{
+            ssvepOff();
+        }
+        flipFlag = !flipFlag;
+    });
+    timer->start();
 }
 
 void Ssvep::stopSsvep(){
-    timer->stop();
+    timer->flashFlag = false;
+    timer->wait();
+    delete timer;
+    timer = nullptr;
 }
 
 void Ssvep::ssvepOn(){
     center->show();
-    east->show();
-    south->show();
-    west->show();
-    north->show();
+//    east->show();
+//    south->show();
+//    west->show();
+//    north->show();
+    update();
 }
 
 void Ssvep::ssvepOff(){
     center->hide();
-    east->hide();
-    south->hide();
-    west->hide();
-    north->hide();
+//    east->hide();
+//    south->hide();
+//    west->hide();
+//    north->hide();
+    update();
 }

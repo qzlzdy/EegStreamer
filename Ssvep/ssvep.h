@@ -3,34 +3,33 @@
 
 #include <chrono>
 #include <QGridLayout>
-#include <QTimer>
 #include <QWidget>
+#include "Ssvep/ssveptimer.h"
 
 namespace Ui { class Ssvep; }
 
 namespace ehdu{
 
-class Ssvep : public QWidget{
+class Ssvep: public QWidget{
     Q_OBJECT
 public:
     explicit Ssvep(QWidget *parent = nullptr);
     ~Ssvep();
 public slots:
-    void startSsvep(std::chrono::milliseconds cycle);
+    void startSsvep(const std::chrono::nanoseconds &cycle);
     void stopSsvep();
 private:
     void ssvepOn();
     void ssvepOff();
     Ui::Ssvep *ui;
-    QTimer *timer;
+    SsvepTimer *timer;
+    bool flipFlag;
 
     QWidget *center;
     QWidget *east;
     QWidget *south;
     QWidget *west;
     QWidget *north;
-
-    bool timerFlag;
 };
 
 }

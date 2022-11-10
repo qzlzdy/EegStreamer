@@ -11,25 +11,18 @@
 using namespace std;
 using namespace ehdu;
 
-const QString EegStreamer::FREQ_6_494_Hz = "6.494 Hz";
-const QString EegStreamer::FREQ_8_065_Hz = "8.065 Hz";
-const QString EegStreamer::FREQ_11_628_Hz = "11.628 Hz";
-const QString EegStreamer::FREQ_15_625_Hz = "15.625 Hz";
+const QString EegStreamer::FREQ_8Hz = "8.0 Hz";
+const QString EegStreamer::FREQ_11Hz = "11.0 Hz";
+const QString EegStreamer::FREQ_13Hz = "13.0 Hz";
+const QString EegStreamer::FREQ_15Hz = "15.0 Hz";
 
 EegStreamer::EegStreamer(QWidget *parent):
 QWidget(parent), ui(new Ui::EegStreamer){
     ui->setupUi(this);
     cyton = new Cyton(this);
 
-    impedanceChart = new ImpedanceChart(this);
-    signalChart = new SignalChart(this, cyton->chooseChannelString);
-    chartLayout = new QHBoxLayout(this);
-    chartLayout->setSpacing(10);
-    chartLayout->setContentsMargins(0, 0, 0, 0);
-    chartLayout->addWidget(impedanceChart);
-    chartLayout->addStretch();
-    chartLayout->addWidget(signalChart);
-    ui->MainLayout->addLayout(chartLayout);
+    signalChart = new SignalChart(this);
+    ui->MainLayout->addWidget(signalChart);
 
     ports = new QComboBox(this);
     refreshPorts = new QPushButton("refresh ports", this);
@@ -47,10 +40,10 @@ QWidget(parent), ui(new Ui::EegStreamer){
 
     ssvep = new Ssvep(this);
     frequencies = new QComboBox(this);
-    frequencies->addItem(FREQ_6_494_Hz);
-    frequencies->addItem(FREQ_8_065_Hz);
-    frequencies->addItem(FREQ_11_628_Hz);
-    frequencies->addItem(FREQ_15_625_Hz);
+    frequencies->addItem(FREQ_8Hz);
+    frequencies->addItem(FREQ_11Hz);
+    frequencies->addItem(FREQ_13Hz);
+    frequencies->addItem(FREQ_15Hz);
     filenameEdit = new QLineEdit(this);
     startRecord = new QPushButton("start record", this);
     stopRecord = new QPushButton("stop record", this);
@@ -63,14 +56,14 @@ QWidget(parent), ui(new Ui::EegStreamer){
     ui->SsvepLayout->addWidget(ssvep);
     ui->SsvepLayout->addLayout(recordLayout);
 
+    timer = new QTimer;
+
     connect(cyton, &Cyton::bufferDataSignal,
             signalChart, &SignalChart::chartAddData);
-    connect(impedanceChart, &ImpedanceChart::resetSignals,
-            cyton, &Cyton::reset);
-    connect(refreshPorts, &QPushButton::clicked,
-            this, [&](){
+    connect(refreshPorts, &QPushButton::clicked, this, [&](){
         ports->clear();
-        foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()){
+        foreach(const QSerialPortInfo &info,
+                QSerialPortInfo::availablePorts()){
             QSerialPort serial;
             serial.setPort(info);
             if(serial.open(QIODevice::ReadWrite)){
@@ -85,18 +78,24 @@ QWidget(parent), ui(new Ui::EegStreamer){
             this, &EegStreamer::stopCyton);
     connect(startRecord, &QPushButton::clicked,
             this, &EegStreamer::startRecordToFile);
-    connect(cyton, &Cyton::recordToFile,
-            this, &EegStreamer::recordData);
+    connect(startRecord, &QPushButton::clicked, this, [&](){
+        timer->start(151s);
+    });
+    connect(cyton, &Cyton::recordToFile, this, &EegStreamer::recordData);
     connect(stopRecord, &QPushButton::clicked,
             this, &EegStreamer::stopRecordToFile);
-    connect(stopRecord, &QPushButton::clicked,
-            ssvep, &Ssvep::stopSsvep);
+    connect(stopRecord, &QPushButton::clicked, ssvep, &Ssvep::stopSsvep);
+    connect(timer, &QTimer::timeout, this, &EegStreamer::stopRecordToFile);
+    connect(timer, &QTimer::timeout, ssvep, &Ssvep::stopSsvep);
+    connect(timer, &QTimer::timeout, this, [](){
+        QMessageBox msgBox;
+        msgBox.setText("采样结束");
+        msgBox.exec();
+    });
 }
 
 EegStreamer::~EegStreamer(){
     delete signalChart;
-    delete impedanceChart;
-    delete chartLayout;
 
     delete ports;
     delete refreshPorts;
@@ -110,6 +109,7 @@ EegStreamer::~EegStreamer(){
     delete stopRecord;
     delete recordLayout;
 
+    delete timer;
     delete cyton;
     delete ui;
 }
@@ -132,7 +132,6 @@ void EegStreamer::stopCyton(){
     cyton->stopStream();
     connectCyton->setDisabled(false);
     disconnectCyton->setDisabled(true);
-    impedanceChart->impedanceQualitySlot(ChannelImpedance());
 }
 
 void EegStreamer::startRecordToFile(){
@@ -149,18 +148,18 @@ void EegStreamer::startRecordToFile(){
     recordFile = filename.toStdString();
     // 告诉线程可以开始记录了
     QString freq = frequencies->currentText();
-    chrono::milliseconds cycle = 1s;
-    if(freq == FREQ_6_494_Hz){
-        cycle = 77ms;
+    chrono::nanoseconds cycle = 1s;
+    if(freq == FREQ_8Hz){
+        cycle = 62500000ns;
     }
-    else if(freq == FREQ_8_065_Hz){
-        cycle = 62ms;
+    else if(freq == FREQ_11Hz){
+        cycle = 45454545ns;
     }
-    else if(freq == FREQ_11_628_Hz){
-        cycle = 43ms;
+    else if(freq == FREQ_13Hz){
+        cycle = 38461538ns;
     }
-    else if(freq == FREQ_15_625_Hz){
-        cycle = 32ms;
+    else if(freq == FREQ_15Hz){
+        cycle = 33333333ns;
     }
     ssvep->startSsvep(cycle);
     cyton->recordFlag = true;

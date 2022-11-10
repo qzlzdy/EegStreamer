@@ -5,12 +5,12 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
+#include <QTimer>
 #include <QPushButton>
 #include <QWidget>
 #include "board_shim.h"
-#include "Chart/impedancechart.h"
 #include "Chart/signalchart.h"
-#include "OpenBCI/Cyton.h"
+#include "OpenBCI/cyton.h"
 #include "Ssvep/ssvep.h"
 
 namespace Ui { class EegStreamer; }
@@ -20,18 +20,16 @@ namespace ehdu{
 class EegStreamer: public QWidget{
     Q_OBJECT
 public:
-    static const QString FREQ_6_494_Hz;
-    static const QString FREQ_8_065_Hz;
-    static const QString FREQ_11_628_Hz;
-    static const QString FREQ_15_625_Hz;
+    static const QString FREQ_8Hz;
+    static const QString FREQ_11Hz;
+    static const QString FREQ_13Hz;
+    static const QString FREQ_15Hz;
     explicit EegStreamer(QWidget *parent = nullptr);
     ~EegStreamer();
 private:
     Ui::EegStreamer *ui;
     Cyton *cyton;
 
-    QHBoxLayout *chartLayout;
-    ImpedanceChart *impedanceChart;
     SignalChart *signalChart;
 
     QHBoxLayout *buttonsLayout;
@@ -48,6 +46,7 @@ private:
     QPushButton *stopRecord;
 
     std::string recordFile;
+    QTimer *timer;
 private slots:
     void startCyton();
     void stopCyton();
