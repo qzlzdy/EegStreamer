@@ -1,15 +1,13 @@
 #ifndef EEGSTREAMER_H
 #define EEGSTREAMER_H
 
+#include <array>
 #include <string>
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QLineEdit>
 #include <QTimer>
-#include <QPushButton>
+#include <QSharedPointer>
 #include <QWidget>
-#include "board_shim.h"
-#include "Chart/signalchart.h"
+#include <board_shim.h>
+#include "ThirdParty/qcustomplot/qcustomplot.h"
 #include "OpenBCI/cyton.h"
 #include "Ssvep/ssvep.h"
 
@@ -21,38 +19,31 @@ class EegStreamer: public QWidget{
     Q_OBJECT
 public:
     static const QString FREQ_8Hz;
-    static const QString FREQ_11Hz;
-    static const QString FREQ_13Hz;
-    static const QString FREQ_15Hz;
+    static const QString FREQ_10Hz;
+    static const QString FREQ_12Hz;
+    static const QString FREQ_14Hz;
     explicit EegStreamer(QWidget *parent = nullptr);
     ~EegStreamer();
 private:
     Ui::EegStreamer *ui;
     Cyton *cyton;
+    QTimer *timer;
 
-    SignalChart *signalChart;
-
-    QHBoxLayout *buttonsLayout;
-    QComboBox *ports;
-    QPushButton *refreshPorts;
-    QPushButton *connectCyton;
-    QPushButton *disconnectCyton;
+    std::array<QCustomPlot *, 8> channels;
+    QSharedPointer<QCPAxisTickerTime> ticker;
+    double startTime;
 
     Ssvep *ssvep;
-    QHBoxLayout *recordLayout;
-    QComboBox *frequencies;
-    QLineEdit *filenameEdit;
-    QPushButton *startRecord;
-    QPushButton *stopRecord;
-
     std::string recordFile;
-    QTimer *timer;
 private slots:
-    void startCyton();
-    void stopCyton();
-    void startRecordToFile();
-    void stopRecordToFile();
+    void addChartData(const BrainFlowArray<double, 2> &data);
+    void connectCyton();
+    void disconnectCyton();
+    void loadCsv();
     void recordData(const BrainFlowArray<double, 2> &data);
+    void refreshPorts();
+    void startRecord();
+    void stopRecord();
 };
 
 }

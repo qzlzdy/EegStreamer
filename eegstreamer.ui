@@ -29,7 +29,144 @@
       <attribute name="title">
        <string>Main</string>
       </attribute>
-      <layout class="QVBoxLayout" name="MainLayout"/>
+      <layout class="QVBoxLayout" name="MainLayout">
+       <item>
+        <widget class="QScrollArea" name="scrollArea">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>697</width>
+            <height>700</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="scrollLayout">
+           <item>
+            <widget class="QCustomPlot" name="ch1" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch2" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch3" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch4" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch5" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch6" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch7" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="ch8" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>80</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="MainTabHLayout">
+         <property name="spacing">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QComboBox" name="Ports"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="RefreshPorts">
+           <property name="text">
+            <string>刷新端口</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="ConnectCyton">
+           <property name="text">
+            <string>连接</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="DisconnectCyton">
+           <property name="text">
+            <string>断开连接</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="SsvepTab">
       <property name="styleSheet">
@@ -38,12 +175,111 @@
       <attribute name="title">
        <string>Ssvep</string>
       </attribute>
-      <layout class="QVBoxLayout" name="SsvepLayout"/>
+      <layout class="QVBoxLayout" name="SsvepLayout">
+       <item>
+        <layout class="QHBoxLayout" name="SsvepTabHLayout">
+         <item>
+          <widget class="QComboBox" name="Freqs"/>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="RecordFilename"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="StartRecord">
+           <property name="text">
+            <string>开始记录</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="StopRecord">
+           <property name="text">
+            <string>停止记录</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="FftTab">
+      <attribute name="title">
+       <string>FFT</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="FftLayout">
+       <item>
+        <layout class="QHBoxLayout" name="FftTabHLayout">
+         <item>
+          <widget class="QLineEdit" name="LoadFilename"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="LoadCsv">
+           <property name="text">
+            <string>加载文件</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="SettingHLayout">
+         <item>
+          <widget class="QComboBox" name="RangeSel">
+           <property name="currentText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="UseLog">
+           <property name="text">
+            <string>UseLog</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QCustomPlot" name="FftPlot" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="PsdTab">
+      <attribute name="title">
+       <string>PSD</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="PasLayout">
+       <item>
+        <widget class="QCustomPlot" name="PsdPlot" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>80</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>ThirdParty/qcustomplot/qcustomplot.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

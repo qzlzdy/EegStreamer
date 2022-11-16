@@ -11,24 +11,21 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += \
     main.cpp \
+    ThirdParty/qcustomplot/qcustomplot.cpp \
     eegstreamer.cpp \
-    Chart/qcustomplot.cpp \
-    Chart/signalchart.cpp \
     OpenBCI/cyton.cpp \
     Ssvep/ssvep.cpp \
     Ssvep/ssveptimer.cpp
 
 HEADERS += \
+    ThirdParty/qcustomplot/qcustomplot.h \
     eegstreamer.h \
-    Chart/qcustomplot.h \
-    Chart/signalchart.h \
     OpenBCI/cyton.h \
     Ssvep/ssvep.h \
     Ssvep/ssveptimer.h
 
 FORMS += \
     eegstreamer.ui \
-    Chart/signalchart.ui \
     Ssvep/ssvep.ui
 
 INCLUDEPATH += \

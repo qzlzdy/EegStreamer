@@ -9,6 +9,8 @@ namespace ehdu{
 class Cyton final: public QThread{
     Q_OBJECT
 public:
+    static const int SAMPLE_RATE;
+    static const double SCALE_FACTOR;
     Cyton(QObject *parent = nullptr);
     ~Cyton();
     void startStream();
