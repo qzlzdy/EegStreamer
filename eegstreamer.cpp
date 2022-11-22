@@ -129,6 +129,7 @@ void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
         for(int i = 0; i < size; ++i){
             double currentTime = data.at(22, i) - startTime;
             double value = data.at(c + 1, i) * Cyton::SCALE_FACTOR;
+            value *= 0.01;
             channels[c]->graph(0)->addData(currentTime, value);
         }
         channels[c]->xAxis->setRange(leftBound, lastTime);
@@ -140,6 +141,7 @@ void EegStreamer::connectCyton(){
     try{
         for(int c = 0; c < 8; ++c){
             channels[c]->clearGraphs();
+            channels[c]->addGraph()->setPen(QPen(penColors[c]));
         }
         cyton->startStream();
         cyton->start();

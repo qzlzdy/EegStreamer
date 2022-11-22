@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>基于PIC微控制器的脑电采集设备控制软件</string>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>
@@ -47,7 +47,7 @@
             <x>0</x>
             <y>0</y>
             <width>697</width>
-            <height>700</height>
+            <height>1660</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="scrollLayout">
@@ -56,7 +56,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -66,7 +66,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -76,7 +76,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -86,7 +86,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -96,7 +96,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -106,7 +106,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -116,7 +116,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
@@ -126,7 +126,7 @@
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>80</height>
+               <height>200</height>
               </size>
              </property>
             </widget>
