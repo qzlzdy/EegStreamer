@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1280</width>
+    <height>720</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QTabWidget" name="TabWidget">
      <property name="tabPosition">
-      <enum>QTabWidget::East</enum>
+      <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -46,87 +46,87 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>697</width>
-            <height>1660</height>
+            <width>1224</width>
+            <height>2620</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="scrollLayout">
            <item>
-            <widget class="QCustomPlot" name="ch1" native="true">
+            <widget class="QChartView" name="ch1">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch2" native="true">
+            <widget class="QChartView" name="ch2">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch3" native="true">
+            <widget class="QChartView" name="ch3">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch4" native="true">
+            <widget class="QChartView" name="ch4">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch5" native="true">
+            <widget class="QChartView" name="ch5">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch6" native="true">
+            <widget class="QChartView" name="ch6">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch7" native="true">
+            <widget class="QChartView" name="ch7">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCustomPlot" name="ch8" native="true">
+            <widget class="QChartView" name="ch8">
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>200</height>
+               <height>320</height>
               </size>
              </property>
             </widget>
@@ -222,32 +222,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="SettingHLayout">
-         <item>
-          <widget class="QComboBox" name="RangeSel">
-           <property name="currentText">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="UseLog">
-           <property name="text">
-            <string>UseLog</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QCustomPlot" name="FftPlot" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>80</height>
-          </size>
-         </property>
-        </widget>
+        <widget class="QChartView" name="FftPlot"/>
        </item>
       </layout>
      </widget>
@@ -257,14 +232,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="PasLayout">
        <item>
-        <widget class="QCustomPlot" name="PsdPlot" native="true">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>80</height>
-          </size>
-         </property>
-        </widget>
+        <widget class="QChartView" name="PsdPlot"/>
        </item>
       </layout>
      </widget>
@@ -274,10 +242,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header>ThirdParty/qcustomplot/qcustomplot.h</header>
-   <container>1</container>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>qchartview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

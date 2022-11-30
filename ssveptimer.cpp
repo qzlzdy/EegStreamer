@@ -1,4 +1,4 @@
-#include "Ssvep/ssveptimer.h"
+#include "ssveptimer.h"
 
 using namespace std;
 using namespace ehdu;

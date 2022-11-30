@@ -1,4 +1,4 @@
-QT += core gui serialport
+QT += core gui serialport charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 greaterThan(QT_MAJOR_VERSION, 5): QT += printsupport
@@ -11,22 +11,20 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += \
     main.cpp \
-    ThirdParty/qcustomplot/qcustomplot.cpp \
+    cyton.cpp \
     eegstreamer.cpp \
-    OpenBCI/cyton.cpp \
-    Ssvep/ssvep.cpp \
-    Ssvep/ssveptimer.cpp
+    ssvep.cpp \
+    ssveptimer.cpp
 
 HEADERS += \
-    ThirdParty/qcustomplot/qcustomplot.h \
+    cyton.h \
     eegstreamer.h \
-    OpenBCI/cyton.h \
-    Ssvep/ssvep.h \
-    Ssvep/ssveptimer.h
+    ssvep.h \
+    ssveptimer.h
 
 FORMS += \
     eegstreamer.ui \
-    Ssvep/ssvep.ui
+    ssvep.ui
 
 INCLUDEPATH += \
     $$PWD/ThirdParty/brainflow/inc

@@ -1,12 +1,14 @@
 #include "eegstreamer.h"
 #include "ui_eegstreamer.h"
 
+#include <algorithm>
 #include <chrono>
 #include <QFile>
+#include <QLogValueAxis>
 #include <QMessageBox>
 #include <QSerialPort>
 #include <QSerialPortInfo>
-#include <QVector>
+#include <QValueAxis>
 #include <data_filter.h>
 
 using namespace std;
@@ -38,24 +40,21 @@ QWidget(parent), ui(new Ui::EegStreamer){
     cyton = new Cyton(this);
     timer = new QTimer(this);
 
+    array<QChartView *, 8> views = {
+        ui->ch1, ui->ch2, ui->ch3, ui->ch4,
+        ui->ch5, ui->ch6, ui->ch7, ui->ch8
+    };
     // Main Window Initialization
-    channels = {ui->ch1, ui->ch2, ui->ch3, ui->ch4,
-                ui->ch5, ui->ch6, ui->ch7, ui->ch8};
-    ticker = QSharedPointer<QCPAxisTickerTime>(new QCPAxisTickerTime);
-    ticker->setTimeFormat("%s.%z");
     for(int c = 0; c < 8; ++c){
-        channels[c]->xAxis->setLabel("time (s)");
-        channels[c]->xAxis->setRange(0, 10);
-        channels[c]->yAxis->setLabel("amp (uV)");
-        channels[c]->yAxis->setRange(-187.5, 187.5);
-        channels[c]->addGraph()->setPen(QPen(penColors[c]));
-        channels[c]->xAxis->setTicker(ticker);
-        channels[c]->axisRect()->setupFullAxesBox();
-        connect(channels[c]->xAxis, SIGNAL(rangeChanged(QCPRange)),
-                channels[c]->xAxis2, SLOT(setRange(QCPRange)));
-        channels[c]->replot();
+        initTimeSeries(channels[c], timeSeries[c]);
+        timeSeries[c]->setColor(penColors[c]);
+        views[c]->setChart(channels[c]);
+        views[c]->setRenderHint(QPainter::Antialiasing);
+        buffers[c].reserve(2500);
+        for(int i = 0; i < 2500; ++i){
+            buffers[c] << QPointF(4 * i, 0);
+        }
     }
-    startTime = 0;
     ui->DisconnectCyton->setDisabled(true);
 
     // SSVEP Initialization
@@ -68,16 +67,13 @@ QWidget(parent), ui(new Ui::EegStreamer){
     ui->StopRecord->setDisabled(true);
 
     // FFT & PSD Initialization
-    ui->FftPlot->xAxis->setLabel("freq (Hz)");
-    ui->FftPlot->xAxis->setRange(5, 20);
-    ui->FftPlot->yAxis->setLabel("amp");
-    ui->FftPlot->yAxis->setRange(0, 1);
-    ui->PsdPlot->xAxis->setLabel("freq (Hz)");
-    ui->PsdPlot->xAxis->setRange(5, 20);
-    ui->PsdPlot->yAxis->setLabel("power");
-    ui->PsdPlot->yAxis->setRange(0, 1);
-    ui->RangeSel->addItem("1");
-    ui->RangeSel->addItem("10");
+    initPlotChart(fftChart, fftSeries);
+    ui->FftPlot->setChart(fftChart);
+    ui->FftPlot->setRenderHint(QPainter::Antialiasing);
+
+    initPlotChart(psdChart, psdSeries);
+    ui->PsdPlot->setChart(psdChart);
+    ui->PsdPlot->setRenderHint(QPainter::Antialiasing);
 
     // connect signals & slots
     connect(cyton, &Cyton::bufferDataSignal, this, &EegStreamer::addChartData);
@@ -89,68 +85,101 @@ QWidget(parent), ui(new Ui::EegStreamer){
         msgBox.setText("采样结束");
         msgBox.exec();
     });
-    connect(ui->RefreshPorts, &QPushButton::clicked,
-            this, &EegStreamer::refreshPorts);
-    connect(ui->ConnectCyton, &QPushButton::clicked,
-            this, &EegStreamer::connectCyton);
-    connect(ui->DisconnectCyton, &QPushButton::clicked,
-            this, &EegStreamer::disconnectCyton);
-    connect(ui->StartRecord, &QPushButton::clicked,
-            this, &EegStreamer::startRecord);
+    connect(ui->RefreshPorts, &QPushButton::clicked, this, &EegStreamer::refreshPorts);
+    connect(ui->ConnectCyton, &QPushButton::clicked, this, &EegStreamer::connectCyton);
+    connect(ui->DisconnectCyton, &QPushButton::clicked, this, &EegStreamer::disconnectCyton);
+    connect(ui->StartRecord, &QPushButton::clicked, this, &EegStreamer::startRecord);
     connect(ui->StartRecord, &QPushButton::clicked, this, [&](){
         timer->start(151s);
     });
-    connect(ui->StopRecord, &QPushButton::clicked,
-            this, &EegStreamer::stopRecord);
+    connect(ui->StopRecord, &QPushButton::clicked, this, &EegStreamer::stopRecord);
     connect(ui->StopRecord, &QPushButton::clicked, ssvep, &Ssvep::stopSsvep);
     connect(ui->LoadCsv, &QPushButton::clicked, this, &EegStreamer::loadCsv);
 }
 
 EegStreamer::~EegStreamer(){
+    delete psdChart;
+    delete fftChart;
     delete ssvep;
+    for_each(channels.begin(), channels.end(), [](QChart *&p){
+        delete p;
+    });
 
     delete timer;
     delete cyton;
     delete ui;
 }
 
+void EegStreamer::initTimeSeries(QChart *&chart, QLineSeries *&series){
+    chart = new QChart;
+    series = new QLineSeries;
+    series->setUseOpenGL();
+    chart->addSeries(series);
+    QValueAxis *xAxis = new QValueAxis;
+    xAxis->setRange(0, 10000);
+    chart->addAxis(xAxis, Qt::AlignBottom);
+    series->attachAxis(xAxis);
+    QValueAxis *yAxis = new QValueAxis;
+    yAxis->setRange(-187.5, 187.5);
+    chart->addAxis(yAxis, Qt::AlignLeft);
+    series->attachAxis(yAxis);
+    chart->legend()->hide();
+}
+
+void EegStreamer::initPlotChart(QChart *&chart, array<QLineSeries *, 8> &series){
+    chart = new QChart;
+    for_each(series.begin(), series.end(), [&](QLineSeries *&p){
+        p = new QLineSeries;
+        p->setUseOpenGL();
+        chart->addSeries(p);
+    });
+    QValueAxis *xAxis = new QValueAxis;
+    xAxis->setRange(6, 20);
+    xAxis->setTickCount(8);
+    chart->addAxis(xAxis, Qt::AlignBottom);
+    for_each(series.begin(), series.end(), [&](QLineSeries *p){
+        p->attachAxis(xAxis);
+    });
+    QLogValueAxis *yAxis = new QLogValueAxis;
+    yAxis->setBase(10);
+    yAxis->setRange(0.1, 10);
+    yAxis->setMinorTickCount(10);
+    chart->addAxis(yAxis, Qt::AlignLeft);
+    for_each(series.begin(), series.end(), [&](QLineSeries *p){
+        p->attachAxis(yAxis);
+    });
+    chart->legend()->hide();
+}
+
 void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
-    if(startTime == 0){
-        startTime = data.at(22, 0);
-    }
-    int size = data.get_size(1);
-    double lastTime = data.at(22, size - 1) - startTime;
-    double leftBound = lastTime - 10;
-    if(leftBound < 0){
-        lastTime = 10;
-        leftBound = 0;
+    int availableSamples = data.get_size(1);
+    int start = 0;
+    if(availableSamples < 2500){
+        start = 2500 - availableSamples;
+        for(int c = 0; c < 8; ++c){
+            for(int s = 0; s < start; ++s){
+                buffers[c][s].setY(buffers[c].at(s + availableSamples).y());
+            }
+        }
     }
     for(int c = 0; c < 8; ++c){
-        for(int i = 0; i < size; ++i){
-            double currentTime = data.at(22, i) - startTime;
-            double value = data.at(c + 1, i) * Cyton::SCALE_FACTOR;
-            value *= 0.01;
-            channels[c]->graph(0)->addData(currentTime, value);
+        for(int s = start; s < 2500; ++s){
+            double value = data.at(c + 1, s - start) * Cyton::SCALE_FACTOR;
+//            value *= 0.1;
+            buffers[c][s].setY(value);
         }
-        channels[c]->xAxis->setRange(leftBound, lastTime);
-        channels[c]->replot();
+        timeSeries[c]->replace(buffers[c]);
     }
 }
 
 void EegStreamer::connectCyton(){
     try{
-        for(int c = 0; c < 8; ++c){
-            channels[c]->clearGraphs();
-            channels[c]->addGraph()->setPen(QPen(penColors[c]));
-        }
         cyton->startStream();
         cyton->start();
         ui->ConnectCyton->setDisabled(true);
         ui->DisconnectCyton->setDisabled(false);
     }
     catch(const BrainFlowException &err){
-        BoardShim::log_message(static_cast<int>(LogLevels::LEVEL_ERROR),
-                               err.what());
         QMessageBox::critical(this, "Streaming Error", err.what());
     }
 }
@@ -173,20 +202,7 @@ void EegStreamer::loadCsv(){
         return;
     }
 
-    BrainFlowArray<double, 2> data =
-        DataFilter::read_file(filename.toStdString());
-    ui->FftPlot->clearGraphs();
-    ui->PsdPlot->clearPlottables();
-    QString selectedRange = ui->RangeSel->currentText();
-    if(selectedRange == "10"){
-        ui->FftPlot->yAxis->setRange(0, 10);
-        ui->PsdPlot->yAxis->setRange(0, 10);
-    }
-    else if(selectedRange == "1"){
-        ui->FftPlot->yAxis->setRange(0, 1);
-        ui->PsdPlot->yAxis->setRange(0, 1);
-    }
-    bool useLog = ui->UseLog->isChecked();
+    BrainFlowArray<double, 2> data = DataFilter::read_file(filename.toStdString());
     for(int c = 0; c < 8; ++c){
         double *head = data.get_address(c + 1) + 30 * Cyton::SAMPLE_RATE;
         int size = 120 * Cyton::SAMPLE_RATE;
@@ -208,24 +224,22 @@ void EegStreamer::loadCsv(){
         complex<double> *fft = DataFilter::perform_fft(padding, N,
             static_cast<int>(WindowOperations::HANNING), &fft_len);
         delete[] padding;
-        QVector<double> freq(fft_len), amp(fft_len);
+        QList<QPointF> buffer;
         double freq_step = 1.0 * Cyton::SAMPLE_RATE / N;
         for(int i = 0; i < fft_len; ++i){
-            freq[i] = freq_step * i;
-            amp[i] = abs(fft[i]);
+            double freq = freq_step * i;
+            double amp = abs(fft[i]);
             if(i == 0){
-                amp[i] /= N;
+                amp /= N;
             }
             else{
-                amp[i] /= N >> 1;
+                amp /= N >> 1;
             }
-            amp[i] *= Cyton::SCALE_FACTOR;
-            if(useLog){
-                amp[i] = 10 * log10(amp[i]);
-            }
+//            amp *= Cyton::SCALE_FACTOR;
+            buffer << QPointF(freq, amp);
         }
         delete[] fft;
-        ui->FftPlot->addGraph()->setData(freq, amp);
+        fftSeries[c]->replace(buffer);
 
         // PSD
         fft_len = DataFilter::get_nearest_power_of_two(4 * Cyton::SAMPLE_RATE);
@@ -233,30 +247,22 @@ void EegStreamer::loadCsv(){
         pair<double *, double *> psd = DataFilter::get_psd_welch(
             head, size, fft_len, fft_len / 2, Cyton::SAMPLE_RATE,
             static_cast<int>(WindowOperations::HANNING), &psd_len);
-        QVector<double> band(30), power(30);
+        buffer.clear();
         for(int i = 0; i < 30; ++i){
-            double f = 0.5 * i + 5;
-            band[i] = f;
+            double band = 0.5 * i + 5;
+            double power;
             try{
-                power[i] = DataFilter::get_band_power(
-                    psd, psd_len, f - 0.25, f + 0.25);
+                power = DataFilter::get_band_power(psd, psd_len, band - 0.25, band + 0.25);
             }
             catch(const BrainFlowException &err){
-                power[i] = 0;
+                power = 0;
             }
-            if(useLog){
-                power[i] = 10 * log10(power[i]);
-            }
+            buffer << QPointF(band, power);
         }
         delete[] psd.first;
         delete[] psd.second;
-        QCPBars *bars = new QCPBars(ui->PsdPlot->xAxis, ui->PsdPlot->yAxis);
-        bars->setWidth(0.2);
-        bars->setData(band, power);
-        bars->setPen(QPen(penColors[c]));
+        psdSeries[c]->replace(buffer);
     }
-    ui->FftPlot->replot();
-    ui->PsdPlot->replot();
 }
 
 void EegStreamer::recordData(const BrainFlowArray<double, 2> &data){

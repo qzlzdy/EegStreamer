@@ -4,7 +4,7 @@
 #include <chrono>
 #include <QGridLayout>
 #include <QWidget>
-#include "Ssvep/ssveptimer.h"
+#include "ssveptimer.h"
 
 namespace Ui { class Ssvep; }
 

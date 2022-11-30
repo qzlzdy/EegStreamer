@@ -1,4 +1,4 @@
-#include "OpenBCI/cyton.h"
+#include "cyton.h"
 
 #include <QtDebug>
 #include <string>
