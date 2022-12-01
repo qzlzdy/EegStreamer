@@ -40,21 +40,28 @@ QWidget(parent), ui(new Ui::EegStreamer){
     cyton = new Cyton(this);
     timer = new QTimer(this);
 
-    array<QChartView *, 8> views = {
+    // Main Window Initialization
+    array<QGraphicsView *, 8> views = {
         ui->ch1, ui->ch2, ui->ch3, ui->ch4,
         ui->ch5, ui->ch6, ui->ch7, ui->ch8
     };
-    // Main Window Initialization
     for(int c = 0; c < 8; ++c){
         initTimeSeries(channels[c], timeSeries[c]);
         timeSeries[c]->setColor(penColors[c]);
-        views[c]->setChart(channels[c]);
+        scenes[c] = new QGraphicsScene(this);
+        scenes[c]->addItem(channels[c]);
+        railed[c] = scenes[c]->addText("Railed: 0%");
+        railed[c]->setDefaultTextColor(QColor(0, 0, 0));
+        railed[c]->setPos(150, 20);
+        views[c]->setScene(scenes[c]);
         views[c]->setRenderHint(QPainter::Antialiasing);
+        views[c]->show();
         buffers[c].reserve(2500);
         for(int i = 0; i < 2500; ++i){
             buffers[c] << QPointF(4 * i, 0);
         }
     }
+    sampleCount = 0;
     ui->DisconnectCyton->setDisabled(true);
 
     // SSVEP Initialization
@@ -104,6 +111,9 @@ EegStreamer::~EegStreamer(){
     for_each(channels.begin(), channels.end(), [](QChart *&p){
         delete p;
     });
+    for_each(scenes.begin(), scenes.end(), [](QGraphicsScene *&p){
+        delete p;
+    });
 
     delete timer;
     delete cyton;
@@ -112,35 +122,37 @@ EegStreamer::~EegStreamer(){
 
 void EegStreamer::initTimeSeries(QChart *&chart, QLineSeries *&series){
     chart = new QChart;
-    series = new QLineSeries;
+    chart->setMinimumSize(1190, 290);
+    chart->legend()->hide();
+    series = new QLineSeries(this);
     series->setUseOpenGL();
     chart->addSeries(series);
-    QValueAxis *xAxis = new QValueAxis;
+    QValueAxis *xAxis = new QValueAxis(this);
     xAxis->setRange(0, 10000);
     chart->addAxis(xAxis, Qt::AlignBottom);
     series->attachAxis(xAxis);
-    QValueAxis *yAxis = new QValueAxis;
+    QValueAxis *yAxis = new QValueAxis(this);
     yAxis->setRange(-187.5, 187.5);
     chart->addAxis(yAxis, Qt::AlignLeft);
     series->attachAxis(yAxis);
-    chart->legend()->hide();
 }
 
 void EegStreamer::initPlotChart(QChart *&chart, array<QLineSeries *, 8> &series){
     chart = new QChart;
-    for_each(series.begin(), series.end(), [&](QLineSeries *&p){
-        p = new QLineSeries;
-        p->setUseOpenGL();
-        chart->addSeries(p);
-    });
-    QValueAxis *xAxis = new QValueAxis;
+    for(int c = 0; c < 8; ++c){
+        series[c] = new QLineSeries(this);
+        series[c]->setColor(penColors[c]);
+        series[c]->setUseOpenGL();
+        chart->addSeries(series[c]);
+    }
+    QValueAxis *xAxis = new QValueAxis(this);
     xAxis->setRange(6, 20);
     xAxis->setTickCount(8);
     chart->addAxis(xAxis, Qt::AlignBottom);
     for_each(series.begin(), series.end(), [&](QLineSeries *p){
         p->attachAxis(xAxis);
     });
-    QLogValueAxis *yAxis = new QLogValueAxis;
+    QLogValueAxis *yAxis = new QLogValueAxis(this);
     yAxis->setBase(10);
     yAxis->setRange(0.1, 10);
     yAxis->setMinorTickCount(10);
@@ -169,6 +181,19 @@ void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
             buffers[c][s].setY(value);
         }
         timeSeries[c]->replace(buffers[c]);
+    }
+    sampleCount += availableSamples;
+    if(sampleCount >= 250){
+        sampleCount %= 250;
+        for(int c = 0; c < 8; ++c){
+            array<double, 1000> head;
+            transform(buffers[c].constData() + 1500, buffers[c].constData() + 1000,
+                      head.begin(), [](const QPointF &p){
+                return p.y();
+            });
+            double rail = DataFilter::get_railed_percentage(head.data(), 1000, 24);
+            railed[c]->setPlainText(QString("Railed: %1%").arg(rail));
+        }
     }
 }
 

@@ -4,6 +4,8 @@
 #include <array>
 #include <string>
 #include <QChart>
+#include <QGraphicsScene>
+#include <QGraphicsTextItem>
 #include <QLineSeries>
 #include <QList>
 #include <QPointF>
@@ -34,9 +36,12 @@ private:
     QTimer *timer;
 
     // Main
+    std::array<QGraphicsScene *, 8> scenes;
     std::array<QChart *, 8> channels;
+    std::array<QGraphicsTextItem *, 8> railed;
     std::array<QLineSeries *, 8> timeSeries;
     std::array<QList<QPointF>, 8> buffers;
+    int sampleCount;
 
     // Ssvep
     Ssvep *ssvep;
