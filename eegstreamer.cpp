@@ -154,7 +154,7 @@ void EegStreamer::initPlotChart(QChart *&chart, array<QLineSeries *, 8> &series)
     });
     QLogValueAxis *yAxis = new QLogValueAxis(this);
     yAxis->setBase(10);
-    yAxis->setRange(0.1, 10);
+    yAxis->setRange(0.01, 10);
     yAxis->setMinorTickCount(10);
     chart->addAxis(yAxis, Qt::AlignLeft);
     for_each(series.begin(), series.end(), [&](QLineSeries *p){
@@ -176,8 +176,7 @@ void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
     }
     for(int c = 0; c < 8; ++c){
         for(int s = start; s < 2500; ++s){
-            double value = data.at(c + 1, s - start) * Cyton::SCALE_FACTOR;
-//            value *= 0.1;
+            double value = data.at(c + 1, s - start) * 0.001;
             buffers[c][s].setY(value);
         }
         timeSeries[c]->replace(buffers[c]);
@@ -187,7 +186,7 @@ void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
         sampleCount %= 250;
         for(int c = 0; c < 8; ++c){
             array<double, 1000> head;
-            transform(buffers[c].constData() + 1500, buffers[c].constData() + 1000,
+            transform(buffers[c].constData() + 1500, buffers[c].constData() + 2500,
                       head.begin(), [](const QPointF &p){
                 return p.y();
             });
@@ -233,47 +232,40 @@ void EegStreamer::loadCsv(){
         int size = 120 * Cyton::SAMPLE_RATE;
         DataFilter::remove_environmental_noise(head, size, Cyton::SAMPLE_RATE,
             static_cast<int>(NoiseTypes::FIFTY));
-        DataFilter::perform_bandpass(head, size, Cyton::SAMPLE_RATE, 3, 40, 4,
+        DataFilter::perform_bandpass(head, size, Cyton::SAMPLE_RATE, 5, 20, 4,
             static_cast<int>(FilterTypes::BUTTERWORTH), 0);
 
         // FFT
+        int offset = 30 * Cyton::SAMPLE_RATE;
+        size = 4 * Cyton::SAMPLE_RATE;
         int fft_len;
-        int N = DataFilter::get_nearest_power_of_two(size) << 1;
-        double *padding = new double[N];
-        for(int j = 0; j < size; ++j){
-            padding[j] = head[j];
-        }
-        for(int j = size; j < N; ++j){
-            padding[j] = 0;
-        }
-        complex<double> *fft = DataFilter::perform_fft(padding, N,
+        complex<double> *fft = DataFilter::perform_fft(head + offset, size,
             static_cast<int>(WindowOperations::HANNING), &fft_len);
-        delete[] padding;
         QList<QPointF> buffer;
-        double freq_step = 1.0 * Cyton::SAMPLE_RATE / N;
+        double freq_step = 1.0 * Cyton::SAMPLE_RATE / size;
         for(int i = 0; i < fft_len; ++i){
             double freq = freq_step * i;
             double amp = abs(fft[i]);
             if(i == 0){
-                amp /= N;
+                amp /= size;
             }
             else{
-                amp /= N >> 1;
+                amp /= size >> 1;
             }
-//            amp *= Cyton::SCALE_FACTOR;
             buffer << QPointF(freq, amp);
         }
         delete[] fft;
         fftSeries[c]->replace(buffer);
 
         // PSD
+        size = 60 * Cyton::SAMPLE_RATE;
         fft_len = DataFilter::get_nearest_power_of_two(4 * Cyton::SAMPLE_RATE);
         int psd_len;
         pair<double *, double *> psd = DataFilter::get_psd_welch(
-            head, size, fft_len, fft_len / 2, Cyton::SAMPLE_RATE,
+            head + offset, size, fft_len, fft_len / 2, Cyton::SAMPLE_RATE,
             static_cast<int>(WindowOperations::HANNING), &psd_len);
         buffer.clear();
-        for(int i = 0; i < 30; ++i){
+        for(int i = 0; i < 31; ++i){
             double band = 0.5 * i + 5;
             double power;
             try{

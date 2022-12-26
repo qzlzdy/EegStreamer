@@ -7,7 +7,7 @@ using namespace std;
 using namespace ehdu;
 
 const int Cyton::SAMPLE_RATE = 250;
-const double Cyton::SCALE_FACTOR = 0.02235;
+//const double Cyton::SCALE_FACTOR = 0.02235;
 
 Cyton::Cyton(QObject *parent): QThread(parent){
     readingFlag = true;
