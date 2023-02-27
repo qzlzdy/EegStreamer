@@ -25,9 +25,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="MainTab">
+     <widget class="QWidget" name="Main">
       <attribute name="title">
-       <string>Main</string>
+       <string>设备</string>
       </attribute>
       <layout class="QVBoxLayout" name="MainLayout">
        <item>
@@ -188,7 +188,7 @@
        <string notr="true"/>
       </property>
       <attribute name="title">
-       <string>Ssvep</string>
+       <string>实验范式</string>
       </attribute>
       <layout class="QVBoxLayout" name="SsvepLayout">
        <item>
@@ -219,7 +219,7 @@
      </widget>
      <widget class="QWidget" name="FftTab">
       <attribute name="title">
-       <string>FFT</string>
+       <string>折线图(FFT)</string>
       </attribute>
       <layout class="QVBoxLayout" name="FftLayout">
        <item>
@@ -243,7 +243,7 @@
      </widget>
      <widget class="QWidget" name="PsdTab">
       <attribute name="title">
-       <string>PSD</string>
+       <string>折线图(PSD)</string>
       </attribute>
       <layout class="QVBoxLayout" name="PasLayout">
        <item>

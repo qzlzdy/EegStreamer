@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <QFile>
+#include <QFont>
 #include <QLogValueAxis>
 #include <QMessageBox>
 #include <QSerialPort>
@@ -145,18 +146,51 @@ void EegStreamer::initPlotChart(QChart *&chart, array<QLineSeries *, 8> &series)
         series[c]->setUseOpenGL();
         chart->addSeries(series[c]);
     }
+
+    QFont font("思源宋体");
+    QPen pen;
+    series[0]->setColor(QColorConstants::Black);
+    pen = series[0]->pen();
+    pen.setWidthF(1.667);
+    series[0]->setPen(pen);
     QValueAxis *xAxis = new QValueAxis(this);
-    xAxis->setRange(6, 20);
-    xAxis->setTickCount(8);
+    xAxis->setRange(6, 16);
+    xAxis->setTickCount(6);
+    xAxis->setMinorTickCount(1);
+    xAxis->setLabelFormat("%d");
+    xAxis->setLabelsFont(font);
+    xAxis->setTitleText("频率（Hz）");
+    xAxis->setTitleFont(font);
     chart->addAxis(xAxis, Qt::AlignBottom);
+    pen = xAxis->linePen();
+    pen.setWidthF(1.667);
+    xAxis->setLinePen(pen);
+    xAxis->setLinePenColor(QColorConstants::Black);
+    pen = xAxis->gridLinePen();
+    pen.setWidth(1);
+    xAxis->setGridLinePen(pen);
     for_each(series.begin(), series.end(), [&](QLineSeries *p){
         p->attachAxis(xAxis);
     });
+
     QLogValueAxis *yAxis = new QLogValueAxis(this);
     yAxis->setBase(10);
-    yAxis->setRange(0.01, 10);
-    yAxis->setMinorTickCount(10);
+    yAxis->setRange(0.01, 1);
+    yAxis->setMinorTickCount(5);
+    yAxis->setLabelsFont(font);
+    yAxis->setTitleText("功率谱密度（&mu;V<sup>2</sup>/Hz）");
+    yAxis->setTitleFont(font);
     chart->addAxis(yAxis, Qt::AlignLeft);
+    pen = yAxis->linePen();
+    pen.setWidthF(1.667);
+    yAxis->setLinePen(pen);
+    yAxis->setLinePenColor(QColorConstants::Black);
+    pen = yAxis->gridLinePen();
+    pen.setWidth(1);
+    yAxis->setGridLinePen(pen);
+    pen = yAxis->minorGridLinePen();
+    pen.setWidth(1);
+    yAxis->setMinorGridLinePen(pen);
     for_each(series.begin(), series.end(), [&](QLineSeries *p){
         p->attachAxis(yAxis);
     });
@@ -258,6 +292,7 @@ void EegStreamer::loadCsv(){
         fftSeries[c]->replace(buffer);
 
         // PSD
+        offset = 20 * Cyton::SAMPLE_RATE;
         size = 60 * Cyton::SAMPLE_RATE;
         fft_len = DataFilter::get_nearest_power_of_two(4 * Cyton::SAMPLE_RATE);
         int psd_len;
@@ -265,11 +300,12 @@ void EegStreamer::loadCsv(){
             head + offset, size, fft_len, fft_len / 2, Cyton::SAMPLE_RATE,
             static_cast<int>(WindowOperations::HANNING), &psd_len);
         buffer.clear();
-        for(int i = 0; i < 31; ++i){
+        for(int i = 0; i < 25; ++i){
             double band = 0.5 * i + 5;
             double power;
             try{
-                power = DataFilter::get_band_power(psd, psd_len, band - 0.25, band + 0.25);
+                power = DataFilter::get_band_power(psd, psd_len, band - 0.25,
+                                                   band + 0.25);
             }
             catch(const BrainFlowException &err){
                 power = 0;
@@ -279,6 +315,7 @@ void EegStreamer::loadCsv(){
         delete[] psd.first;
         delete[] psd.second;
         psdSeries[c]->replace(buffer);
+        break;
     }
 }
 
