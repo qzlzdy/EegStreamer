@@ -315,7 +315,6 @@ void EegStreamer::loadCsv(){
         delete[] psd.first;
         delete[] psd.second;
         psdSeries[c]->replace(buffer);
-        break;
     }
 }
 
