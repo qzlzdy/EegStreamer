@@ -1,4 +1,4 @@
-#include "cyton.h"
+#include "brainwave.h"
 
 #include <QtDebug>
 #include <string>
@@ -6,10 +6,9 @@
 using namespace std;
 using namespace ehdu;
 
-const int Cyton::SAMPLE_RATE = 250;
-//const double Cyton::SCALE_FACTOR = 0.02235;
+const int BrainWave::SAMPLE_RATE = 250;
 
-Cyton::Cyton(QObject *parent): QThread(parent){
+BrainWave::BrainWave(QObject *parent): QThread(parent){
     readingFlag = true;
     recordFlag = false;
     BrainFlowInputParams params;
@@ -18,7 +17,7 @@ Cyton::Cyton(QObject *parent): QThread(parent){
                           params);
 }
 
-Cyton::~Cyton(){
+BrainWave::~BrainWave(){
     readingFlag = false;
     quit();
     wait();
@@ -28,14 +27,14 @@ Cyton::~Cyton(){
     delete board;
 }
 
-void Cyton::startStream(){
+void BrainWave::startStream(){
     if(!board->is_prepared()){
         board->prepare_session();
     }
     board->start_stream();
 }
 
-void Cyton::stopStream(){
+void BrainWave::stopStream(){
     try{
         board->stop_stream();
     }
@@ -46,17 +45,17 @@ void Cyton::stopStream(){
     }
 }
 
-void Cyton::reset(){
+void BrainWave::reset(){
     static_cast<void>(board->get_board_data());
 }
 
-void Cyton::run(){
+void BrainWave::run(){
     while(readingFlag){
         readData();
     }
 }
 
-void Cyton::readData(){
+void BrainWave::readData(){
     if(board->get_board_data_count() > 0){
         BrainFlowArray<double, 2> data = board->get_board_data();
         emit bufferDataSignal(data);

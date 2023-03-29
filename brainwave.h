@@ -1,18 +1,18 @@
-#ifndef OPENBCI_CYTON_H
-#define OPENBCI_CYTON_H
+#ifndef BRAINWAVE_H
+#define BRAINWAVE_H
 
 #include <QThread>
 #include "board_shim.h"
 
 namespace ehdu{
 
-class Cyton final: public QThread{
+class BrainWave final: public QThread{
     Q_OBJECT
 public:
     static const int SAMPLE_RATE;
 //    static const double SCALE_FACTOR;
-    Cyton(QObject *parent = nullptr);
-    ~Cyton();
+    BrainWave(QObject *parent = nullptr);
+    ~BrainWave();
     void startStream();
     void stopStream();
     bool readingFlag;
@@ -29,6 +29,6 @@ private:
     BoardShim *board;
 };
 
-};
+} // namespace ehdu
 
-#endif
+#endif // BRAINWAVE_H

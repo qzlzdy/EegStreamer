@@ -1,9 +1,8 @@
 QT += core gui serialport charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-greaterThan(QT_MAJOR_VERSION, 5): QT += printsupport
 
-CONFIG += c++20
+CONFIG += c++20 strict_c++
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -11,13 +10,13 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs depr
 
 SOURCES += \
     main.cpp \
-    cyton.cpp \
+    brainwave.cpp \
     eegstreamer.cpp \
     ssvep.cpp \
     ssveptimer.cpp
 
 HEADERS += \
-    cyton.h \
+    brainwave.h \
     eegstreamer.h \
     ssvep.h \
     ssveptimer.h

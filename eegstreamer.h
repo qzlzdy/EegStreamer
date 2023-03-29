@@ -12,7 +12,7 @@
 #include <QTimer>
 #include <QWidget>
 #include <board_shim.h>
-#include "cyton.h"
+#include "brainwave.h"
 #include "ssvep.h"
 
 namespace Ui { class EegStreamer; }
@@ -32,7 +32,7 @@ private:
     void initTimeSeries(QChart *&chart, QLineSeries *&series);
     void initPlotChart(QChart *&chart, std::array<QLineSeries *, 8> &series);
     Ui::EegStreamer *ui;
-    Cyton *cyton;
+    BrainWave *board;
     QTimer *timer;
 
     // Main

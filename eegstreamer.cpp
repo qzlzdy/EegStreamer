@@ -38,7 +38,7 @@ array<QColor, 8> penColors = {
 EegStreamer::EegStreamer(QWidget *parent):
 QWidget(parent), ui(new Ui::EegStreamer){
     ui->setupUi(this);
-    cyton = new Cyton(this);
+    board = new BrainWave(this);
     timer = new QTimer(this);
 
     // Main Window Initialization
@@ -84,8 +84,9 @@ QWidget(parent), ui(new Ui::EegStreamer){
     ui->PsdPlot->setRenderHint(QPainter::Antialiasing);
 
     // connect signals & slots
-    connect(cyton, &Cyton::bufferDataSignal, this, &EegStreamer::addChartData);
-    connect(cyton, &Cyton::recordToFile, this, &EegStreamer::recordData);
+    connect(board, &BrainWave::bufferDataSignal,
+            this, &EegStreamer::addChartData);
+    connect(board, &BrainWave::recordToFile, this, &EegStreamer::recordData);
     connect(timer, &QTimer::timeout, this, &EegStreamer::stopRecord);
     connect(timer, &QTimer::timeout, ssvep, &Ssvep::stopSsvep);
     connect(timer, &QTimer::timeout, this, [&](){
@@ -115,7 +116,7 @@ EegStreamer::~EegStreamer(){
     });
 
     delete timer;
-    delete cyton;
+    delete board;
     delete ui;
 }
 
@@ -230,8 +231,8 @@ void EegStreamer::addChartData(const BrainFlowArray<double, 2> &data){
 
 void EegStreamer::connectCyton(){
     try{
-        cyton->startStream();
-        cyton->start();
+        board->startStream();
+        board->start();
         ui->ConnectCyton->setDisabled(true);
         ui->DisconnectCyton->setDisabled(false);
     }
@@ -241,7 +242,7 @@ void EegStreamer::connectCyton(){
 }
 
 void EegStreamer::disconnectCyton(){
-    cyton->stopStream();
+    board->stopStream();
     ui->ConnectCyton->setDisabled(false);
     ui->DisconnectCyton->setDisabled(true);
 }
@@ -258,23 +259,22 @@ void EegStreamer::loadCsv(){
         return;
     }
 
-    BrainFlowArray<double, 2> data = DataFilter::read_file(filename.toStdString());
+    BrainFlowArray<double, 2> data =
+        DataFilter::read_file(filename.toStdString());
     for(int c = 0; c < 8; ++c){
-        double *head = data.get_address(c + 1) + 30 * Cyton::SAMPLE_RATE;
-        int size = 120 * Cyton::SAMPLE_RATE;
-        DataFilter::remove_environmental_noise(head, size, Cyton::SAMPLE_RATE,
-            static_cast<int>(NoiseTypes::FIFTY));
-        DataFilter::perform_bandpass(head, size, Cyton::SAMPLE_RATE, 5, 20, 4,
-            static_cast<int>(FilterTypes::BUTTERWORTH), 0);
+        double *head = data.get_address(c + 1) + 30 * BrainWave::SAMPLE_RATE;
+        int size = 120 * BrainWave::SAMPLE_RATE;
+        DataFilter::remove_environmental_noise(head, size,
+            BrainWave::SAMPLE_RATE, static_cast<int>(NoiseTypes::FIFTY));
 
         // FFT
-        int offset = 30 * Cyton::SAMPLE_RATE;
-        size = 4 * Cyton::SAMPLE_RATE;
+        int offset = 30 * BrainWave::SAMPLE_RATE;
+        size = 4 * BrainWave::SAMPLE_RATE;
         int fft_len;
         complex<double> *fft = DataFilter::perform_fft(head + offset, size,
             static_cast<int>(WindowOperations::HANNING), &fft_len);
         QList<QPointF> buffer;
-        double freq_step = 1.0 * Cyton::SAMPLE_RATE / size;
+        double freq_step = 1.0 * BrainWave::SAMPLE_RATE / size;
         for(int i = 0; i < fft_len; ++i){
             double freq = freq_step * i;
             double amp = abs(fft[i]);
@@ -290,12 +290,13 @@ void EegStreamer::loadCsv(){
         fftSeries[c]->replace(buffer);
 
         // PSD
-        offset = 20 * Cyton::SAMPLE_RATE;
-        size = 60 * Cyton::SAMPLE_RATE;
-        fft_len = DataFilter::get_nearest_power_of_two(4 * Cyton::SAMPLE_RATE);
+        offset = 20 * BrainWave::SAMPLE_RATE;
+        size = 60 * BrainWave::SAMPLE_RATE;
+        fft_len =
+            DataFilter::get_nearest_power_of_two(4 * BrainWave::SAMPLE_RATE);
         int psd_len;
         pair<double *, double *> psd = DataFilter::get_psd_welch(
-            head + offset, size, fft_len, fft_len / 2, Cyton::SAMPLE_RATE,
+            head + offset, size, fft_len, fft_len / 2, BrainWave::SAMPLE_RATE,
             static_cast<int>(WindowOperations::HANNING), &psd_len);
         buffer.clear();
         for(int i = 0; i < 25; ++i){
@@ -360,13 +361,13 @@ void EegStreamer::startRecord(){
         cycle = 35714286ns;
     }
     ssvep->startSsvep(cycle);
-    cyton->recordFlag = true;
+    board->recordFlag = true;
     ui->StartRecord->setDisabled(true);
     ui->StopRecord->setDisabled(false);
 }
 
 void EegStreamer::stopRecord(){
-    cyton->recordFlag = false;
+    board->recordFlag = false;
     ui->StartRecord->setDisabled(false);
     ui->StopRecord->setDisabled(true);
 }
