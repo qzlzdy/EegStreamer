@@ -88,10 +88,8 @@ QWidget(parent), ui(new Ui::EegStreamer){
     connect(cyton, &Cyton::recordToFile, this, &EegStreamer::recordData);
     connect(timer, &QTimer::timeout, this, &EegStreamer::stopRecord);
     connect(timer, &QTimer::timeout, ssvep, &Ssvep::stopSsvep);
-    connect(timer, &QTimer::timeout, this, [](){
-        QMessageBox msgBox;
-        msgBox.setText("采样结束");
-        msgBox.exec();
+    connect(timer, &QTimer::timeout, this, [&](){
+        QMessageBox::information(this, "提示", "采样结束");
     });
     connect(ui->RefreshPorts, &QPushButton::clicked, this, &EegStreamer::refreshPorts);
     connect(ui->ConnectCyton, &QPushButton::clicked, this, &EegStreamer::connectCyton);
