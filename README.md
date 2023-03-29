@@ -1,6 +1,6 @@
 # EegStreamer
 
-脑电采集系统控制软件，适用HDU脑机接口实验室自研脑电采集主板。
+脑电采集系统控制软件，适用HDU脑机接口实验室自研脑电采集主板BrainWave。
 
 # Prerequistites
 
